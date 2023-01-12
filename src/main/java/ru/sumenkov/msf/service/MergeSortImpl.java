@@ -1,4 +1,4 @@
-package ru.sumenkov.shiftJavaTestTask.service;
+package ru.sumenkov.msf.service;
 
 public class MergeSortImpl implements MergeSort{
 
@@ -39,7 +39,7 @@ public class MergeSortImpl implements MergeSort{
         merge(src, left, right);
     }
 
-    protected void merge(int[] src, int[] left, int[] right) {
+    public void merge(int[] src, int[] left, int[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
@@ -61,7 +61,7 @@ public class MergeSortImpl implements MergeSort{
         }
     }
 
-    protected void merge(String[] src, String[] left, String[] right) {
+    public void merge(String[] src, String[] left, String[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
