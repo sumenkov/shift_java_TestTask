@@ -1,10 +1,6 @@
 package ru.sumenkov.msf;
 
 import org.apache.commons.cli.*;
-import ru.sumenkov.msf.service.ArrayCheck;
-import ru.sumenkov.msf.service.ArrayCheckImpl;
-import ru.sumenkov.msf.service.MergeSortImpl;
-import ru.sumenkov.msf.service.MergeSort;
 
 import java.util.Arrays;
 
@@ -15,7 +11,7 @@ public class Main {
         CommandLineParser commandLineParser = new DefaultParser();
         Options options = new LaunchOptions().launchOptions();
 
-        if (args.length == 0) helper(options);
+        if (args.length < 3) LaunchOptions.helper(options);
 
         CommandLine commandLine;
 
@@ -25,21 +21,11 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        int[] number = {
-                9, 7, 4, 5, 4, 2, 1
-        };
-        int[] src2 = {
-                5, 6, 8, 9, 11, 45, 52
-        };
-        String[] strings = {
-                "e"
-        };
-
-        MergeSort ms = new MergeSortImpl();
-        ArrayCheck ach = new ArrayCheckImpl();
-
+//        MergeSort ms = new MergeSortImpl();
 //        ms.merge(result, src, src2); // Слияние предварительно отсартированных массивов
 //        ms.mergeSort(strings); // Слияние массивов с нарушеной сортировкой
+
+//        ArrayCheck ach = new ArrayCheckImpl();
 //        ach.isSortedA(number) // проверка, отсортирован ли массив, по возрастанию
 
         if (commandLine.hasOption("i")) {
@@ -49,13 +35,7 @@ public class Main {
             System.out.println(" ");
 
         } else {
-            helper(options);
+            LaunchOptions.helper(options);
         }
-    }
-
-    static void helper(Options options){
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("MergeSortFiles", options, true);
-        System.exit(0);
     }
 }

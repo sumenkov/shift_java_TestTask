@@ -1,5 +1,6 @@
 package ru.sumenkov.msf;
 
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
@@ -27,5 +28,11 @@ public class LaunchOptions {
                 .build());
 
         return options;
+    }
+
+    public static void helper(Options options){
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("MergeSortFiles", options, true);
+        System.exit(0);
     }
 }
