@@ -79,8 +79,8 @@
                             </classPath>
                             <icon>application.ico</icon>
                             <jre>
-                                <minVersion>1.8.0</minVersion>
-                                <requiresJdk>preferJre</requiresJdk>>
+                                <minVersion>1.7.0</minVersion>
+                                <path>/home/sdv/.jdks/corretto-17.0.5</path>
                             </jre>
                             <versionInfo>
                                 <fileVersion>1.0.0.0</fileVersion>
