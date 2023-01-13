@@ -1,8 +1,8 @@
 package ru.sumenkov.msf.service;
 
 public interface MergeSort {
-    void mergeSort(int[] src);
-    void mergeSort(String[] src);
-    void merge(int[] src, int[] left, int[] right);
-    void merge(String[] src, String[] left, String[] right);
+    void mergeSort(int[] array, String sortingDirection);
+    void mergeSort(String[] array, String sortingDirection);
+    void mergeA(int[] array, int[] left, int[] right);
+    void mergeA(String[] array, String[] left, String[] right);
 }

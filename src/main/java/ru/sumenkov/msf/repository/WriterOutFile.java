@@ -9,10 +9,10 @@ public class WriterOutFile {
 
     public static void write(OutputArray outputArray, String fileName) {
 
-        try(FileWriter writer = new FileWriter(fileName, true))
+        try(FileWriter writer = new FileWriter(fileName, false))
         {
-            for (int str: outputArray.getOutArrayI()) {
-                writer.append((char) str);
+            for (int num: outputArray.getOutArrayI()) {
+                writer.append(String.valueOf(num)).append("\n");
             }
 
             writer.flush();

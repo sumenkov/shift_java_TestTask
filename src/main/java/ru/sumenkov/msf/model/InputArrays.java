@@ -11,8 +11,8 @@ public class InputArrays {
         return inArraysI;
     }
 
-    public void setInArraysI(List<int[]> inArraysI) {
-        this.inArraysI = inArraysI;
+    public void setInArraysI(int[] inArray) {
+        this.inArraysI.add(inArray);
     }
 
     public List<String[]> getInArraysS() {
