@@ -80,7 +80,7 @@
                             <icon>application.ico</icon>
                             <jre>
                                 <minVersion>1.7.0</minVersion>
-                                <path>/home/sdv/.jdks/corretto-17.0.5</path>
+                                <path>$JAVA_HOME</path>
                             </jre>
                             <versionInfo>
                                 <fileVersion>1.0.0.0</fileVersion>
