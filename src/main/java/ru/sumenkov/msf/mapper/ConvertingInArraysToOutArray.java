@@ -2,8 +2,6 @@ package ru.sumenkov.msf.mapper;
 
 import ru.sumenkov.msf.model.InputArrays;
 import ru.sumenkov.msf.model.OutputArray;
-import ru.sumenkov.msf.service.ArrayCheck;
-import ru.sumenkov.msf.service.ArrayCheckImpl;
 import ru.sumenkov.msf.service.MergeSort;
 import ru.sumenkov.msf.service.MergeSortImpl;
 
@@ -15,33 +13,49 @@ public class ConvertingInArraysToOutArray {
 
         List<int[]> inArraysI = inputArrays.getInArraysI();
         int length = 0;
-        int[] tmp = new int[length];
 
-        ArrayCheck check = new ArrayCheckImpl();
-        MergeSort mergeSort = new MergeSortImpl();
-
-        for (int[] array: inArraysI) {
-            if (sortingDirection.equals("a")) {
-                if (!check.isSortedA(array)) {
-                    mergeSort.mergeSort(array, sortingDirection);
-                }
-            } else {
-                if (!check.isSortedD(array)) {
-                    mergeSort.mergeSort(array, sortingDirection);
-                }
-            }
-
+        for (int[] array: inputArrays.getInArraysI()) {
             length += array.length;
         }
 
         OutputArray outputArray = new OutputArray();
         outputArray.setOutArrayI(new int[length]);
 
-        MergeSort ms = new MergeSortImpl();
-
-        for (int[] array : inArraysI) {
-            ms.mergeA(outputArray.getOutArrayI(), tmp, array); // Слияние предварительно отсартированных массивов
+        int index = 0;
+        for (int[] array: inArraysI) {
+            for (int j : array) {
+                outputArray.getOutArrayI()[index] = j;
+                index++;
+            }
         }
+
+        MergeSort ms = new MergeSortImpl();
+        ms.mergeSort(outputArray.getOutArrayI(), sortingDirection);
+
+        return outputArray;
+    }
+
+    public static OutputArray convertS(InputArrays inputArrays, String sortingDirection) {
+        List<String[]> inArraysS = inputArrays.getInArraysS();
+        int length = 0;
+
+        for (String[] array: inArraysS) {
+            length += array.length;
+        }
+
+        OutputArray outputArray = new OutputArray();
+        outputArray.setOutArrayS(new String[length]);
+
+        int index = 0;
+        for (String[] array: inArraysS) {
+            for (String j : array) {
+                outputArray.getOutArrayS()[index] = j;
+                index++;
+            }
+        }
+
+        MergeSort ms = new MergeSortImpl();
+        ms.mergeSort(outputArray.getOutArrayS(), sortingDirection);
 
         return outputArray;
     }

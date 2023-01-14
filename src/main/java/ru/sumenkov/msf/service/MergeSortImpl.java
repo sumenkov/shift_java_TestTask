@@ -39,7 +39,10 @@ public class MergeSortImpl implements MergeSort{
         mergeSort(left, sortingDirection);
         mergeSort(right, sortingDirection);
 
-        mergeA(array, left, right);
+        if (sortingDirection.equals("a"))
+            mergeA(array, left, right);
+        else
+            mergeD(array, left, right);
     }
 
     public void mergeA(int[] array, int[] left, int[] right) {

@@ -36,6 +36,7 @@ public class ReaderInFiles {
     }
 
     public static String[] readS(String fileName) {
+
         File file = new File(fileName);
         List<String> list = new ArrayList<>();
 
@@ -43,16 +44,21 @@ public class ReaderInFiles {
         {
             String line;
             while ((line = br.readLine()) != null) {
-                if (!isNumeric(line)) {
+                if (!isNumeric(line) && !line.trim().equals("")) {
                     list.add(line);
-                    System.out.println(line);
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return new String[0];
+        String[] array = new String[list.size()];
+
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i);
+        }
+
+        return array;
     }
 
     static boolean isNumeric(String str) {
