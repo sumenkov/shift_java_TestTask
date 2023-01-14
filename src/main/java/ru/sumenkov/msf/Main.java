@@ -1,6 +1,7 @@
 package ru.sumenkov.msf;
 
 import org.apache.commons.cli.*;
+
 import ru.sumenkov.msf.mapper.ConvertingInArraysToOutArray;
 import ru.sumenkov.msf.model.InputArrays;
 import ru.sumenkov.msf.repository.ReaderInFiles;
