@@ -16,17 +16,20 @@
     cd ~/"папка с файлами из архива"
     ./mvnw clean package
 
-### Запуск программы (к командной строке / консоле)
+### Запуск программы (к командной строке / консоли)
 В появившейся новой папке (директории) 'target' выберите файл: **_MergeSortFiles_** расширения **_jar_** или **_exe_**, 
 если запускаете в Windows OS.
 Эти файлы можно копировать и запускать из любого места 
 (убедитесь, что у в ОС установленна переменная окружения JAVA_HOME).
 
-    java -jar MergeSortFiles.jar -a -i uotFile.txt inFile.txt
-    
+    java -jar MergeSortFiles.jar -a -i uotFile.txt inFile.txt 
 или
 
-    MergeSortFiles.exe -a -i uotFile.txt inFile.txt
+    MergeSortFiles.exe -s -d uotFile.txt inFile.txt
+если в командной строке появились нечитаемые знаки, изменить команду на
+    
+    java -jar -Dfile.encoding=cp866 MergeSortFiles.jar -i uotFile.txt inFile.txt 
+    java -jar -Dfile.encoding=cp866 MergeSortFiles.exe -i -d uotFile.txt inFile.txt
 
 #### Параметры (аргументы) запуска
 Обязательные:
