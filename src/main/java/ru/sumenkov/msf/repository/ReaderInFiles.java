@@ -9,6 +9,7 @@ import java.util.List;
 
 
 public class ReaderInFiles {
+
     public static int[] readI(String fileName) {
 
         File file = new File(fileName);
@@ -18,8 +19,10 @@ public class ReaderInFiles {
         {
             String line;
             while ((line = br.readLine()) != null) {
-                if (isNumeric(line)) {
+                if (isNumeric(line) && !line.contains(" ")) {
                     list.add(Integer.valueOf(line));
+                } else {
+                    System.out.printf("Неверный формат данных в строке. Файл %s, данные в строке %s\n", file.getName(), line);
                 }
             }
         } catch (IOException e) {
@@ -44,8 +47,10 @@ public class ReaderInFiles {
         {
             String line;
             while ((line = br.readLine()) != null) {
-                if (!isNumeric(line) && !line.trim().equals("")) {
+                if (!line.contains(" ") && !line.equals("")) {
                     list.add(line);
+                } else {
+                    System.out.printf("Неверный формат данных в строке. Файл %s, данные в строке %s\n", file.getName(), line);
                 }
             }
         } catch (IOException e) {

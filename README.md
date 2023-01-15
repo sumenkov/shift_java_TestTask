@@ -26,9 +26,8 @@
 или
 
     MergeSortFiles.exe -s -d uotFile.txt inFile.txt
-если в командной строке появились нечитаемые знаки, изменить команду на
-    
-    java -jar -Dfile.encoding=cp866 MergeSortFiles.jar -i uotFile.txt inFile.txt 
+если в командной строке Windows появились нечитаемые знаки
+
     java -jar -Dfile.encoding=cp866 MergeSortFiles.exe -i -d uotFile.txt inFile.txt
 
 #### Параметры (аргументы) запуска

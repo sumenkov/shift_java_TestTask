@@ -1,61 +1,61 @@
 package ru.sumenkov.msf;
 
-import org.apache.commons.cli.*;
+import ru.sumenkov.msf.service.FileSort;
+import ru.sumenkov.msf.service.FileSortImpl;
 
-import ru.sumenkov.msf.mapper.ConvertingInArraysToOutArray;
-import ru.sumenkov.msf.model.InputArrays;
-import ru.sumenkov.msf.repository.ReaderInFiles;
-import ru.sumenkov.msf.repository.WriterOutFile;
-
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
+
     public static void main(String[] args) {
+        System.out.println("Free Memory: " + (Runtime.getRuntime().freeMemory() / 1024 / 1024) + " Mb");
 
-        CommandLineParser commandLineParser = new DefaultParser();
-        Options options = new LaunchOptions().launchOptions();
-
-        if (args.length < 3) LaunchOptions.helper(options);
-
-        CommandLine commandLine;
-        try {
-            commandLine = commandLineParser.parse(options, args);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        if (args.length < 3) helper();
 
         int startIndex = Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d") ? 3 : 2;
-        List<Object> inFiles = new ArrayList<>(Arrays.asList(args).subList(startIndex, args.length));
+        List<String> inFiles = new ArrayList<>(Arrays.asList(args).subList(startIndex, args.length));
+        String sortDateType = null;
+        String sortingDirection = Arrays.toString(args).contains("-d") ? "d" : "a";
 
-        String sortingDirection = commandLine.hasOption("d") ? "d" : "a";
+        FileSort fileSort = new FileSortImpl();
 
-        InputArrays inputArrays = new InputArrays();
-
-        if (commandLine.hasOption("i")) {
-            for (Object file: inFiles) {
-                int[] tmp = ReaderInFiles.readI(String.valueOf(file));
-                inputArrays.getInArraysI().add(tmp);
-            }
-
-            WriterOutFile.writeI(
-                    ConvertingInArraysToOutArray.convertI(inputArrays, sortingDirection),
-                    args[startIndex - 1]
-            );
-
-        } else if (commandLine.hasOption("s")) {
-            for (Object file: inFiles) {
-                String[] tmp = ReaderInFiles.readS(String.valueOf(file));
-                inputArrays.getInArraysS().add(tmp);
-            }
-
-            WriterOutFile.writeS(
-                    ConvertingInArraysToOutArray.convertS(inputArrays, sortingDirection),
-                    args[startIndex - 1]
-            );
+        if (Arrays.toString(args).contains("-i")) {
+            sortDateType = "i";
+        } else if (Arrays.toString(args).contains("-s")) {
+            sortDateType = "s";
         } else {
-            LaunchOptions.helper(options);
+            helper();
         }
+
+        try {
+            if (inFiles.size() == 1) {
+                fileSort.fileSort(new File(inFiles.get(0)), sortDateType, sortingDirection);
+            } else {
+                for (String inFile : inFiles) {
+                    fileSort.fileSort(new File(inFile), sortDateType, sortingDirection);
+                }
+            }
+
+            fileSort.fewFiles(sortDateType, sortingDirection, args[startIndex - 1]);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void helper() {
+        System.out.println("usage: MergeSortFiles [OPTIONS] output.file input.files ...\n" +
+                "[-a] [-d] [-i | -s]\n" +
+                " -a   опционально: Сортировка по возрастанию\n" +
+                " -d   опционально: Сортировка по убыванию\n" +
+                " -i   обязательно: Сортировка целых чисел\n" +
+                " -s   обязательно: Сортировка строк\n" +
+                "output.file  обязательно: Имя файла для сохранения результата.\n" +
+                "input.files  обязательно: Один, или более входных файлов.\n");
+        System.exit(0);
     }
 }
