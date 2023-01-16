@@ -44,11 +44,7 @@ public class FileSortImpl implements FileSort {
             Path newFile = Paths.get("tmp/" + file.getName() + ".sort");
             Files.copy(oldFile, newFile);
         } else {
-            long lengthFile = file.length();
-            long freeMemory = Runtime.getRuntime().freeMemory();
-            System.out.println("lengthFile: " + lengthFile + " " + "freeMemory: " + freeMemory);
-
-            if (lengthFile >= freeMemory / 1.5) {
+            if (file.length() >= Runtime.getRuntime().freeMemory()) {
                 splitBigFile(file, sortDateType, sortingDirection);
             } else {
                 smallFile(file.getName(), sortDateType, sortingDirection);
