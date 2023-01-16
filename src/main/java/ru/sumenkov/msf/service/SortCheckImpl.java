@@ -13,21 +13,27 @@ public class SortCheckImpl implements SortCheck {
             Integer num2 = Integer.valueOf(br.readLine());
 
             if (sortingDirection.equals("a")) {
-                while (num2 != null) {
+                while (true) {
                     if (num1 > num2)
                         return false;
 
                     num1 = num2;
-                    num2 = Integer.valueOf(br.readLine());
+                    String tmp = br.readLine();
+                    if (tmp != null)
+                        num2 = Integer.valueOf(tmp);
+                    else break;
                 }
 
             } else if (sortingDirection.equals("d")) {
-                while (num2 != null) {
+                while (true) {
                     if (num1 < num2)
                         return false;
 
                     num1 = num2;
-                    num2 = Integer.valueOf(br.readLine());
+                    String tmp = br.readLine();
+                    if (tmp != null)
+                        num2 = Integer.valueOf(tmp);
+                    else break;
                 }
             }
         } else if (sortDateType.equals("s")) {

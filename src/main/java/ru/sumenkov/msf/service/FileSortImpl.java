@@ -15,6 +15,7 @@ public class FileSortImpl implements FileSort {
     public void filesSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
 
         try {
+            new File("tmp/").mkdir();
             for (String inFile : inFiles) {
                 fileSort(new File(inFile), sortDateType, sortingDirection);
             }
@@ -26,6 +27,7 @@ public class FileSortImpl implements FileSort {
 
     void fileAddSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
         try {
+            new File("tmp/").mkdir();
             fileSort(new File(inFile), sortDateType, sortingDirection);
             fewFiles(sortDateType, sortingDirection, outFile);
         } catch (IOException e) {
@@ -35,7 +37,6 @@ public class FileSortImpl implements FileSort {
 
     void fileSort(File file, String sortDateType, String sortingDirection) throws IOException {
 
-        new File("tmp/").mkdir();
         SortCheck sortCheck = new SortCheckImpl();
 
         if (sortCheck.isSorted(file, sortDateType, sortingDirection)) {
@@ -43,7 +44,11 @@ public class FileSortImpl implements FileSort {
             Path newFile = Paths.get("tmp/" + file.getName() + ".sort");
             Files.copy(oldFile, newFile);
         } else {
-            if (file.length() >= Runtime.getRuntime().freeMemory()) {
+            long lengthFile = file.length();
+            long freeMemory = Runtime.getRuntime().freeMemory();
+            System.out.println("lengthFile: " + lengthFile + " " + "freeMemory: " + freeMemory);
+
+            if (lengthFile >= freeMemory / 1.5) {
                 splitBigFile(file, sortDateType, sortingDirection);
             } else {
                 smallFile(file.getName(), sortDateType, sortingDirection);
