@@ -30,22 +30,22 @@ public class FileSortImpl implements FileSort {
 
         if (sortDateType.equals("i")) {
             int[] ints = ReaderInFiles.readI(file);
-
             mergeSort.mergeSort(ints, sortingDirection);
 
             for (int num: ints) {
                 fw.append(String.valueOf(num)).append("\n");
             }
+
             fw.close();
         }
         else if (sortDateType.equals("s")) {
             String[] strings = ReaderInFiles.readS(file);
-
             mergeSort.mergeSort(strings, sortingDirection);
 
             for (String str: strings) {
                 fw.append(str).append("\n");
             }
+
             fw.close();
         } else {
             System.out.println("Неизвестно направление сортировки");
@@ -80,7 +80,6 @@ public class FileSortImpl implements FileSort {
             String row;
             int rownum = 1;
 
-
             FileWriter fw = new FileWriter("tmp/" + partCounter + ".tmp");
 
             while ((row = br.readLine()) != null) {
@@ -94,7 +93,7 @@ public class FileSortImpl implements FileSort {
 
                     smallFile("tmp/" + newFile.getName(), sortDateType, sortingDirection);
 
-                    newFile.delete()
+                    newFile.delete();
 
                     partCounter++;
                     fw = new FileWriter("tmp/" + partCounter + ".tmp");
@@ -110,15 +109,14 @@ public class FileSortImpl implements FileSort {
     public void fewFiles(String sortDateType, String sortingDirection, String outFile) throws IOException {
 
         List<String> filesNames = new ArrayList<>();
+
         for (File tmpFile: Objects.requireNonNull(new File("tmp").listFiles())) {
             if (!tmpFile.getName().contains("rtmp"))
                 filesNames.add("tmp/" + tmpFile.getName());
         }
 
-        System.out.println(filesNames);
-
         List<BufferedReader> inputFiles = new ArrayList<>();
-        FileWriter fw = new FileWriter("tmp/result.rtmp");
+        FileWriter fw = new FileWriter(outFile);
 
         for (String fileName: filesNames) {
             inputFiles.add(new BufferedReader(new FileReader(fileName)));
@@ -193,7 +191,11 @@ public class FileSortImpl implements FileSort {
                     }
                 }
                 fw.close();
+            } else if (sortingDirection.equals("d")) {
+
             }
+        } else if (sortDateType.equals("s")) {
+
         }
     }
 

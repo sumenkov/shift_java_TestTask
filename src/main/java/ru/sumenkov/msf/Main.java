@@ -12,7 +12,6 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Free Memory: " + (Runtime.getRuntime().freeMemory() / 1024 / 1024) + " Mb");
 
         if (args.length < 3) helper();
 
@@ -21,23 +20,14 @@ public class Main {
         String sortDateType = null;
         String sortingDirection = Arrays.toString(args).contains("-d") ? "d" : "a";
 
+        if (Arrays.toString(args).contains("-i")) sortDateType = "i";
+        else if (Arrays.toString(args).contains("-s")) sortDateType = "s";
+        else helper();
+
         FileSort fileSort = new FileSortImpl();
-
-        if (Arrays.toString(args).contains("-i")) {
-            sortDateType = "i";
-        } else if (Arrays.toString(args).contains("-s")) {
-            sortDateType = "s";
-        } else {
-            helper();
-        }
-
         try {
-            if (inFiles.size() == 1) {
-                fileSort.fileSort(new File(inFiles.get(0)), sortDateType, sortingDirection);
-            } else {
-                for (String inFile : inFiles) {
-                    fileSort.fileSort(new File(inFile), sortDateType, sortingDirection);
-                }
+            for (String inFile : inFiles) {
+                fileSort.fileSort(new File(inFile), sortDateType, sortingDirection);
             }
 
             fileSort.fewFiles(sortDateType, sortingDirection, args[startIndex - 1]);

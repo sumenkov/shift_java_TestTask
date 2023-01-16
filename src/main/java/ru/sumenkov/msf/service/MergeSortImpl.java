@@ -45,7 +45,7 @@ public class MergeSortImpl implements MergeSort{
             mergeD(array, left, right);
     }
 
-    public void mergeA(int[] array, int[] left, int[] right) {
+    void mergeA(int[] array, int[] left, int[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
@@ -67,7 +67,7 @@ public class MergeSortImpl implements MergeSort{
         }
     }
 
-    public void mergeA(String[] array, String[] left, String[] right) {
+    void mergeA(String[] array, String[] left, String[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
@@ -89,7 +89,7 @@ public class MergeSortImpl implements MergeSort{
         }
     }
 
-    public void mergeD(int[] array, int[] left, int[] right) {
+    void mergeD(int[] array, int[] left, int[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
@@ -111,7 +111,7 @@ public class MergeSortImpl implements MergeSort{
         }
     }
 
-    public void mergeD(String[] array, String[] left, String[] right) {
+    void mergeD(String[] array, String[] left, String[] right) {
 
         int k = 0, i = 0, j = 0;
         int leftLength = left.length;
