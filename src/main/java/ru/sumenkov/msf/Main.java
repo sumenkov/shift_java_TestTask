@@ -3,8 +3,6 @@ package ru.sumenkov.msf;
 import ru.sumenkov.msf.service.FileSort;
 import ru.sumenkov.msf.service.FileSortImpl;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,16 +23,8 @@ public class Main {
         else helper();
 
         FileSort fileSort = new FileSortImpl();
-        try {
-            for (String inFile : inFiles) {
-                fileSort.fileSort(new File(inFile), sortDateType, sortingDirection);
-            }
+        fileSort.filesSort(inFiles, sortDateType, sortingDirection, args[startIndex - 1]);
 
-            fileSort.fewFiles(sortDateType, sortingDirection, args[startIndex - 1]);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     static void helper() {
