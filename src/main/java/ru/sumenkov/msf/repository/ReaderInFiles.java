@@ -19,7 +19,7 @@ public class ReaderInFiles {
         {
             String line;
             while ((line = br.readLine()) != null) {
-                if (isNumeric(line) && !line.contains(" ")) {
+                if (isNumeric(line) && !line.contains(" ") && !line.equals("")) {
                     list.add(Integer.valueOf(line));
                 } else {
                     System.out.printf("Неверный формат данных в строке. Файл %s, данные в строке %s\n", file.getName(), line);
