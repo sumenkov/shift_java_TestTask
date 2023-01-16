@@ -9,8 +9,8 @@ public class SortCheckImpl implements SortCheck {
         BufferedReader br = new BufferedReader(new FileReader(file.getName()));
         if (sortDateType.equals("i")) {
 
-            Integer num1 = Integer.valueOf(br.readLine());
-            Integer num2 = Integer.valueOf(br.readLine());
+            int num1 = Integer.parseInt(br.readLine());
+            int num2 = Integer.parseInt(br.readLine());
 
             if (sortingDirection.equals("a")) {
                 while (true) {
@@ -20,7 +20,7 @@ public class SortCheckImpl implements SortCheck {
                     num1 = num2;
                     String tmp = br.readLine();
                     if (tmp != null)
-                        num2 = Integer.valueOf(tmp);
+                        num2 = Integer.parseInt(tmp);
                     else break;
                 }
 
@@ -32,7 +32,7 @@ public class SortCheckImpl implements SortCheck {
                     num1 = num2;
                     String tmp = br.readLine();
                     if (tmp != null)
-                        num2 = Integer.valueOf(tmp);
+                        num2 = Integer.parseInt(tmp);
                     else break;
                 }
             }
