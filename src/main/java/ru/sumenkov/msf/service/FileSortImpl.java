@@ -3,6 +3,9 @@ package ru.sumenkov.msf.service;
 import ru.sumenkov.msf.repository.ReaderInFiles;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,11 +15,19 @@ public class FileSortImpl implements FileSort {
     public void fileSort(File file, String sortDateType, String sortingDirection) throws IOException {
 
         new File("tmp/").mkdir();
+        SortCheck sortCheck = new SortCheckImpl();
 
-        if (file.length() >= Runtime.getRuntime().freeMemory()) {
-            splitBigFile(file, sortDateType, sortingDirection);
+        if (sortCheck.isSorted(file, sortDateType, sortingDirection)) {
+            Path oldFile = file.toPath();
+            Path newFile = Paths.get("tmp/" + file.getName() + ".sort");
+            Files.copy(oldFile, newFile);
+
         } else {
-            smallFile(file.getName(), sortDateType, sortingDirection);
+            if (file.length() >= Runtime.getRuntime().freeMemory()) {
+                splitBigFile(file, sortDateType, sortingDirection);
+            } else {
+                smallFile(file.getName(), sortDateType, sortingDirection);
+            }
         }
     }
 
