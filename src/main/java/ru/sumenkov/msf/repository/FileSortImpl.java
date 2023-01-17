@@ -97,18 +97,7 @@ public class FileSortImpl implements FileSort {
         long fileLength = file.length();
         long maxPartCounter = fileLength % freeMemory == 0 ?
                 fileLength / freeMemory : fileLength / freeMemory + 1;
-        long allRows = 0;
-
-        // ! ->
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            while (br.readLine() != null) {
-                allRows++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // !
-
+        long allRows = numberOfLines(file);
         long maxRows = allRows / maxPartCounter;
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -135,8 +124,20 @@ public class FileSortImpl implements FileSort {
             }
             fw.close();
         } catch (IOException e) {
+            System.out.printf("Ошибка чтения файла %s\n", file.getName());
+        }
+    }
+
+    private long numberOfLines(File file) {
+        long rows = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            while (br.readLine() != null) {
+                rows++;
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        return rows;
     }
 
     public void fewFiles(SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
