@@ -155,6 +155,7 @@ public class FileSortImpl implements FileSort {
 
         if (filesNames.size() == 0) {
             System.out.println("Нет данных для сортировки.");
+            deleteDirectory(new File("tmp"));
             System.exit(0);
         } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
