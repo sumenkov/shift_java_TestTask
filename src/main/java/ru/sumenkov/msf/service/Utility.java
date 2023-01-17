@@ -7,6 +7,18 @@ import java.util.List;
 
 public class Utility {
 
+    public static void helper() {
+        System.out.println("Проверьте параметры запуска программы:\n" +
+                "usage: MergeSortFiles [OPTIONS] output.file input.files ...\n" +
+                "[-a] [-d] [-i | -s]\n" +
+                " -a   опционально: Сортировка по возрастанию\n" +
+                " -d   опционально: Сортировка по убыванию\n" +
+                " -i   обязательно: Сортировка целых чисел\n" +
+                " -s   обязательно: Сортировка строк\n" +
+                "output.file  обязательно: Имя файла для сохранения результата.\n" +
+                "input.files  обязательно: Один, или более входных файлов.\n");
+        System.exit(0);
+    }
     public static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);

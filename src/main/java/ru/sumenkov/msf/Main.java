@@ -2,6 +2,9 @@ package ru.sumenkov.msf;
 
 import ru.sumenkov.msf.repository.FileSort;
 import ru.sumenkov.msf.repository.FileSortImpl;
+import ru.sumenkov.msf.service.ArgsCheck;
+import ru.sumenkov.msf.service.ArgsCheckImpl;
+import ru.sumenkov.msf.service.Utility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,34 +16,14 @@ public class Main {
 
     public static void main(String[] args) {
 
-        for (String arg: args) {
-            List<String> list = new ArrayList<>(Arrays.asList("-i", "-s", "-a", "-d"));
-            if (arg.contains("-")) {
-                if (!list.contains(arg)) {
-                    System.out.println("Неизвестный параметр запуска.");
-                    helper();
-                }
-            }
-        }
+        ArgsCheck argsCheck = new ArgsCheckImpl(args);
+        argsCheck.check();
 
-        int lengthArgs = args.length;
-        if (lengthArgs < 3) helper();
-        else if (Arrays.toString(args).contains("-i") && Arrays.toString(args).contains("-s")) helper();
-        else if (Arrays.toString(args).contains("-a") && Arrays.toString(args).contains("-d")) helper();
-        else if ((Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d")) && lengthArgs < 4) {
-            System.out.println("Не указан файл для записи или чтения.");
-            helper();
-        }
-
-        String sortDateType = null;
-        if (Arrays.toString(args).contains("-i")) sortDateType = "i";
-        else if (Arrays.toString(args).contains("-s")) sortDateType = "s";
-        else helper();
-
-        String sortingDirection = Arrays.toString(args).contains("-d") ? "d" : "a";
-        int startIndex = Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d") ? 3 : 2;
-
+        String sortDateType = argsCheck.sortDateType();
+        String sortingDirection = argsCheck.sortingDirection();
+        int startIndex = argsCheck.startIndex();
         String outFile = args[startIndex - 1];
+
         File of = new File(outFile);
         if (of.exists() && !of.isDirectory()) {
             Scanner reader = new Scanner(System.in);
@@ -70,27 +53,13 @@ public class Main {
                 i--;
             }
         }
-
         if (inFiles.size() == 0) {
             System.out.println("Нет файлов для чтения.");
-            helper();
+            Utility.helper();
         }
 
         FileSort fileSort = new FileSortImpl();
         fileSort.runSort(inFiles, sortDateType, sortingDirection, outFile);
 
-    }
-
-    static void helper() {
-        System.out.println("Проверьте параметры запуска программы:\n" +
-                "usage: MergeSortFiles [OPTIONS] output.file input.files ...\n" +
-                "[-a] [-d] [-i | -s]\n" +
-                " -a   опционально: Сортировка по возрастанию\n" +
-                " -d   опционально: Сортировка по убыванию\n" +
-                " -i   обязательно: Сортировка целых чисел\n" +
-                " -s   обязательно: Сортировка строк\n" +
-                "output.file  обязательно: Имя файла для сохранения результата.\n" +
-                "input.files  обязательно: Один, или более входных файлов.\n");
-        System.exit(0);
     }
 }
