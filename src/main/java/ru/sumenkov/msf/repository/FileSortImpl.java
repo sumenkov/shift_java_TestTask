@@ -13,6 +13,7 @@ import java.util.Objects;
 
 public class FileSortImpl implements FileSort {
 
+    @Override
     public void runSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
 
         try {
@@ -67,6 +68,7 @@ public class FileSortImpl implements FileSort {
     void smallFile(String file, String sortDateType, String sortingDirection) throws IOException {
 
         MergeSort mergeSort = new MergeSortImpl();
+        FileRead fileRead = new FileReadImpl();
         FileWriter fw;
 
         if (file.split("/")[0].equals("tmp"))
@@ -75,7 +77,7 @@ public class FileSortImpl implements FileSort {
             fw = new FileWriter("tmp/" + file + ".stmp");
 
         if (sortDateType.equals("i")) {
-            int[] ints = ReaderFile.readI(file);
+            int[] ints = fileRead.readI(file);
             if (ints.length != 0) {
                 mergeSort.mergeSort(ints, sortingDirection);
                 for (int num : ints) {
@@ -85,7 +87,7 @@ public class FileSortImpl implements FileSort {
             fw.close();
         }
         else if (sortDateType.equals("s")) {
-            String[] strings = ReaderFile.readS(file);
+            String[] strings = fileRead.readS(file);
             mergeSort.mergeSort(strings, sortingDirection);
 
             for (String str: strings) {

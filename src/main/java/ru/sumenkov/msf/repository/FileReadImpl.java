@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ReaderFile {
+public class FileReadImpl implements FileRead{
 
-    public static int[] readI(String fileName) {
+    @Override
+    public int[] readI(String fileName) {
 
         File file = new File(fileName);
         List<Integer> list = new ArrayList<>();
@@ -40,7 +41,8 @@ public class ReaderFile {
         return ints;
     }
 
-    public static String[] readS(String fileName) {
+    @Override
+    public String[] readS(String fileName) {
 
         File file = new File(fileName);
         List<String> list = new ArrayList<>();
