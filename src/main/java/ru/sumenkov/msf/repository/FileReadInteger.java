@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FileReadInteger implements FileRead {
     @Override
-    public Integer[] read(File file) {
+    public List<Integer> read(File file) {
         List<Integer> list = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -27,10 +27,6 @@ public class FileReadInteger implements FileRead {
             System.out.printf("Ошибка чтения файла %s\n", file.getName());
         }
 
-        Integer[] array = new Integer[list.size()];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = list.get(i);
-        }
-        return array;
+        return list;
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class FileReadString implements FileRead {
     @Override
-    public String[] read(File file) {
+    public List<String> read(File file) {
         List<String> list = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -24,11 +24,6 @@ public class FileReadString implements FileRead {
         } catch (IOException e) {
             System.out.printf("Ошибка чтения файла %s\n", file.getName());
         }
-
-        String[] array = new String[list.size()];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = list.get(i);
-        }
-        return array;
+        return list;
     }
 }

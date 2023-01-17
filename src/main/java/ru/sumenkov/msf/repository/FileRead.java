@@ -1,7 +1,8 @@
 package ru.sumenkov.msf.repository;
 
 import java.io.File;
+import java.util.List;
 
 public interface FileRead {
-    Comparable[] read(File file);
+    List<? extends Comparable> read(File file);
 }
