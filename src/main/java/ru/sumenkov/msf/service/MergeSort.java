@@ -2,6 +2,8 @@ package ru.sumenkov.msf.service;
 
 import ru.sumenkov.msf.SortDirection;
 
+import java.util.List;
+
 public interface MergeSort {
-    void mergeSort(Comparable[] array, SortDirection sortingDirection);
+    <T extends Comparable<T>> void mergeSort(List<T> array, SortDirection sortingDirection);
 }

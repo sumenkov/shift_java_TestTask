@@ -13,7 +13,6 @@ public class SortCheckImpl implements SortCheck {
             try {
                 Comparable x = null;
                 Comparable y = null;
-
                 if (sortDateType == SortDataType.INTEGER) {
                     x = Integer.parseInt(br.readLine());
                     y = Integer.parseInt(br.readLine());

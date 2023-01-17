@@ -2,20 +2,25 @@ package ru.sumenkov.msf.service;
 
 import ru.sumenkov.msf.SortDirection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MergeSortImpl implements MergeSort {
 
     @Override
-    public void mergeSort(Comparable[] array, SortDirection sortingDirection) {
+    public <T extends Comparable<T>> void mergeSort(List<T> array, SortDirection sortingDirection) {
 
-        int num = array.length;
-        if (num < 2) return;
+        int num = array.size();
+        if (num < 2) {
+            return;
+        }
 
         int mid = num / 2;
-        Comparable[] left = new Comparable[mid];
-        Comparable[] right = new Comparable[num - mid];
+        List<T> left = new ArrayList<>(array.subList(0, mid));
+        List<T> right = new ArrayList<>(array.subList(num - mid, num));
 
-        System.arraycopy(array, 0, left, 0, mid);
-        System.arraycopy(array, mid, right, 0, num - mid);
+//        System.arraycopy(array, 0, left, 0, mid);
+//        System.arraycopy(array, mid, right, 0, num - mid);
 
         mergeSort(left, sortingDirection);
         mergeSort(right, sortingDirection);
@@ -23,33 +28,39 @@ public class MergeSortImpl implements MergeSort {
         merge(array, left, right, sortingDirection);
     }
 
-    private void merge(Comparable[] array, Comparable[] left, Comparable[] right, SortDirection sortingDirection) {
+    private <T extends Comparable<T>> void merge(List<T> array, List<T> left, List<T> right, SortDirection sortingDirection) {
         int k = 0, i = 0, j = 0;
-        int leftLength = left.length;
-        int rightLength = right.length;
+        int leftLength = left.size();
+        int rightLength = right.size();
 
         while (i < leftLength && j < rightLength) {
             if (sortingDirection == SortDirection.ASC) {
-                if (left[i].compareTo(right[j]) <= 0) {
-                    array[k++] = left[i++];
+                if (left.get(i).compareTo(right.get(j)) <= 0) {
+                    array.set(k++, left.get(i++));
+//                    array[k++] = left[i++];
                 } else {
-                    array[k++] = right[j++];
+                    array.set(k++, right.get(j++));
+//                    array[k++] = right[j++];
                 }
             } else if (sortingDirection == SortDirection.DESC) {
-                if (left[i].compareTo(right[j]) >= 0) {
-                    array[k++] = left[i++];
+                if (left.get(i).compareTo(right.get(j)) >= 0) {
+                    array.set(k++, left.get(i++));
+//                    array[k++] = left[i++];
                 } else {
-                    array[k++] = right[j++];
+                    array.set(k++, right.get(j++));
+//                    array[k++] = right[j++];
                 }
             }
         }
 
         while (i < leftLength) {
-            array[k++] = left[i++];
+            array.set(k++, left.get(i++));
+//            array[k++] = left[i++];
         }
 
         while (j < rightLength) {
-            array[k++] = right[j++];
+            array.set(k++, right.get(j++));
+//            array[k++] = right[j++];
         }
     }
 }

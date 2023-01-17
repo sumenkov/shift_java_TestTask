@@ -53,14 +53,14 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) {
+    <T extends Comparable<T>> void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) {
 
         MergeSort mergeSort = new MergeSortImpl();
         FileRead fileReadInteger = new FileReadInteger();
         FileRead fileReadString = new FileReadString();
 
         try (FileWriter fw = fileWriter(file)) {
-            Comparable[] array = new Comparable[0];
+            List<T> array = new ArrayList<>();
 
             if (sortDateType == SortDataType.INTEGER) {
                 array = fileReadInteger.read(file);
@@ -70,9 +70,9 @@ public class FileSortImpl implements FileSort {
                 System.out.println("Не определен формат данных для сортировки");
             }
 
-            if (array.length != 0) {
+            if (array.size() != 0) {
                 mergeSort.mergeSort(array, sortingDirection);
-                for (Comparable num : array) {
+                for (Object num : array) {
                     fw.append(String.valueOf(num)).append("\n");
                 }
             }

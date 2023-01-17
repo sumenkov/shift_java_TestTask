@@ -4,5 +4,5 @@ import java.io.File;
 import java.util.List;
 
 public interface FileRead {
-    List<? extends Comparable> read(File file);
+    <T extends Comparable<T>> List<T> read(File file);
 }
