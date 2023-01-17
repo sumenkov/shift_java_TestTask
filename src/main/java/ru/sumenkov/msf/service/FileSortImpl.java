@@ -30,7 +30,8 @@ public class FileSortImpl implements FileSort {
     void fileAddSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
         try {
             new File("tmp/").mkdir();
-            long freeMemory = Runtime.getRuntime().freeMemory() / 10;
+            long freeMemory = Runtime.getRuntime().freeMemory() / 15;
+
             fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
             fewFiles(sortDateType, sortingDirection, outFile);
         } catch (IOException e) {
