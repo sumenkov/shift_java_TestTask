@@ -20,45 +20,32 @@ public class FileSortImpl implements FileSort {
     @Override
     public void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile) {
 
-        try {
             long freeMemory = Runtime.getRuntime().freeMemory() / 3;
             for (File inFile : inFiles) {
-                try {
-                    fileSort(inFile, sortDateType, sortDirection, freeMemory);
-                } catch (FileNotFoundException e) {
-                    System.out.println(e.getMessage());
-                }
+                fileSort(inFile, sortDateType, sortDirection, freeMemory);
             }
             fewFiles(sortDateType, sortDirection, outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     void fileSecondSort(File inFile, SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
-        try {
-            long freeMemory = Runtime.getRuntime().freeMemory() / 15;
 
-            try {
-                fileSort(inFile, sortDateType, sortingDirection, freeMemory);
-            } catch (FileNotFoundException e) {
-                System.out.println(e.getMessage());
-            }
+            long freeMemory = Runtime.getRuntime().freeMemory() / 15;
+            fileSort(inFile, sortDateType, sortingDirection, freeMemory);
             fewFiles(sortDateType, sortingDirection, outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    void fileSort(File file, SortDataType sortDateType, SortDirection sortingDirection, long freeMemory)
-            throws IOException {
+    void fileSort(File file, SortDataType sortDateType, SortDirection sortingDirection, long freeMemory) {
 
         SortCheck sortCheck = new SortCheckImpl();
 
         if (sortCheck.isSorted(file, sortDateType, sortingDirection)) {
             Path oldFile = file.toPath();
             Path newFile = Paths.get("tmp/" + file.getName() + ".sort");
-            Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.printf("Не удалось скопировать файл %s или записать новый файл %s\n", oldFile, newFile);
+            }
         } else if (file.length() >= freeMemory) {
             splitBigFile(file, sortDateType, sortingDirection, freeMemory);
         } else {
@@ -66,7 +53,7 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) throws IOException {
+    void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) {
 
         MergeSort mergeSort = new MergeSortImpl();
         FileRead fileReadInteger = new FileReadInteger();
@@ -89,6 +76,8 @@ public class FileSortImpl implements FileSort {
                     fw.append(String.valueOf(num)).append("\n");
                 }
             }
+        } catch (IOException e) {
+            System.out.printf("Ошибка во время сортировки файла %s\n", file.getName());
         }
     }
 
@@ -150,7 +139,7 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    public void fewFiles(SortDataType sortDateType, SortDirection sortingDirection, File outputFile) throws IOException {
+    public void fewFiles(SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
 
         List<String> filesNames = new ArrayList<>();
 
@@ -167,136 +156,138 @@ public class FileSortImpl implements FileSort {
         } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
             Path newFile = Paths.get(outputFile.getName());
-            Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.printf("Не удалось скопировать файл %s или записать новый файл %s\n", oldFile, newFile);
+            }
             System.out.printf("Файл с результатами сохранен как %s\n", outputFile);
         } else {
             List<BufferedReader> inputFiles = new ArrayList<>();
-            FileWriter fw = new FileWriter(outputFile);
+            try (FileWriter fw = new FileWriter(outputFile)) {
+                for (String fileName : filesNames) {
+                    inputFiles.add(new BufferedReader(new FileReader(fileName)));
+                }
 
-            for (String fileName : filesNames) {
-                inputFiles.add(new BufferedReader(new FileReader(fileName)));
-            }
-
-            if (sortDateType == SortDataType.INTEGER) {
-                Integer[] ints = new Integer[inputFiles.size()];
-                for (int i = 0; i < inputFiles.size(); i++) {
-                    String tmp = inputFiles.get(i).readLine();
-                    if (tmp != null)
-                        ints[i] = Integer.parseInt(tmp);
-                }
-                if (sortingDirection == SortDirection.ASC) {
-                    while (Utility.allNull(ints)) {
-                        if (ints.length > 1) {
-                            int indexOfMin = 0;
-                            for (int i = 0; i < ints.length; i++) {
-                                if (ints[i] != null && ints[indexOfMin] != null) {
-                                    if (ints[i] < ints[indexOfMin]) {
-                                        indexOfMin = i;
-                                    }
-                                } else {
-                                    for (int j = 0; j < ints.length; j++) {
-                                        if (ints[j] != null) {
-                                            indexOfMin = j;
+                if (sortDateType == SortDataType.INTEGER) {
+                    Integer[] ints = new Integer[inputFiles.size()];
+                    for (int i = 0; i < inputFiles.size(); i++) {
+                        String tmp = inputFiles.get(i).readLine();
+                        if (tmp != null)
+                            ints[i] = Integer.parseInt(tmp);
+                    }
+                    if (sortingDirection == SortDirection.ASC) {
+                        while (Utility.allNull(ints)) {
+                            if (ints.length > 1) {
+                                int indexOfMin = 0;
+                                for (int i = 0; i < ints.length; i++) {
+                                    if (ints[i] != null && ints[indexOfMin] != null) {
+                                        if (ints[i] < ints[indexOfMin]) {
+                                            indexOfMin = i;
+                                        }
+                                    } else {
+                                        for (int j = 0; j < ints.length; j++) {
+                                            if (ints[j] != null) {
+                                                indexOfMin = j;
+                                            }
                                         }
                                     }
                                 }
+                                writeLineI(fw, ints, inputFiles, indexOfMin);
+                            } else {
+                                writeLineI(fw, ints, inputFiles, 0);
                             }
-                            writeLineI(fw, ints, inputFiles, indexOfMin);
-                        } else {
-                            writeLineI(fw, ints, inputFiles, 0);
+                            fw.flush();
                         }
-                        fw.flush();
-                    }
-                    fw.close();
-                } else if (sortingDirection == SortDirection.DESC) {
-                    while (Utility.allNull(ints)) {
-                        if (ints.length > 1) {
-                            int indexOfMin = 0;
-                            for (int i = 0; i < ints.length; i++) {
-                                if (ints[i] != null && ints[indexOfMin] != null) {
-                                    if (ints[i] > ints[indexOfMin]) {
-                                        indexOfMin = i;
-                                    }
-                                } else {
-                                    for (int j = 0; j < ints.length; j++) {
-                                        if (ints[j] != null) {
-                                            indexOfMin = j;
+                    } else if (sortingDirection == SortDirection.DESC) {
+                        while (Utility.allNull(ints)) {
+                            if (ints.length > 1) {
+                                int indexOfMin = 0;
+                                for (int i = 0; i < ints.length; i++) {
+                                    if (ints[i] != null && ints[indexOfMin] != null) {
+                                        if (ints[i] > ints[indexOfMin]) {
+                                            indexOfMin = i;
+                                        }
+                                    } else {
+                                        for (int j = 0; j < ints.length; j++) {
+                                            if (ints[j] != null) {
+                                                indexOfMin = j;
+                                            }
                                         }
                                     }
                                 }
+                                writeLineI(fw, ints, inputFiles, indexOfMin);
+                            } else {
+                                writeLineI(fw, ints, inputFiles, 0);
                             }
-                            writeLineI(fw, ints, inputFiles, indexOfMin);
-                        } else {
-                            writeLineI(fw, ints, inputFiles, 0);
-                        }
-                        fw.flush();
-                    }
-                    fw.close();
-                }
-            } else if (sortDateType == SortDataType.STRING) {
-                String[] strings = new String[inputFiles.size()];
-                for (int i = 0; i < inputFiles.size(); i++) {
-                    while (true) {
-                        String line = inputFiles.get(i).readLine();
-                        if (!line.contains(" ") && !line.equals("")) {
-                            strings[i] = line;
-                            break;
+                            fw.flush();
                         }
                     }
-                }
-                if (sortingDirection == SortDirection.ASC) {
-                    while (Utility.allNull(strings)) {
-                        if (strings.length > 1) {
-                            int indexOfMin = 0;
-                            for (int i = 0; i < strings.length; i++) {
-                                if (strings[i] != null && strings[indexOfMin] != null) {
-                                    if (strings[i].compareTo(strings[indexOfMin]) <= 0) {
-                                        indexOfMin = i;
-                                    }
-                                } else {
-                                    for (int j = 0; j < strings.length; j++) {
-                                        if (strings[j] != null) {
-                                            indexOfMin = j;
+                } else if (sortDateType == SortDataType.STRING) {
+                    String[] strings = new String[inputFiles.size()];
+                    for (int i = 0; i < inputFiles.size(); i++) {
+                        while (true) {
+                            String line = inputFiles.get(i).readLine();
+                            if (!line.contains(" ") && !line.equals("")) {
+                                strings[i] = line;
+                                break;
+                            }
+                        }
+                    }
+                    if (sortingDirection == SortDirection.ASC) {
+                        while (Utility.allNull(strings)) {
+                            if (strings.length > 1) {
+                                int indexOfMin = 0;
+                                for (int i = 0; i < strings.length; i++) {
+                                    if (strings[i] != null && strings[indexOfMin] != null) {
+                                        if (strings[i].compareTo(strings[indexOfMin]) <= 0) {
+                                            indexOfMin = i;
+                                        }
+                                    } else {
+                                        for (int j = 0; j < strings.length; j++) {
+                                            if (strings[j] != null) {
+                                                indexOfMin = j;
+                                            }
                                         }
                                     }
                                 }
+                                fw.append(strings[indexOfMin]).append("\n");
+                                strings[indexOfMin] = inputFiles.get(indexOfMin).readLine();
+                            } else {
+                                fw.append(strings[0]).append("\n");
+                                strings[0] = inputFiles.get(0).readLine();
                             }
-                            fw.append(strings[indexOfMin]).append("\n");
-                            strings[indexOfMin] = inputFiles.get(indexOfMin).readLine();
-                        } else {
-                            fw.append(strings[0]).append("\n");
-                            strings[0] = inputFiles.get(0).readLine();
+                            fw.flush();
                         }
-                        fw.flush();
-                    }
-                    fw.close();
-                } else if (sortingDirection == SortDirection.DESC) {
-                    while (Utility.allNull(strings)) {
-                        if (strings.length > 1) {
-                            int indexOfMin = 0;
-                            for (int i = 0; i < strings.length; i++) {
-                                if (strings[i] != null && strings[indexOfMin] != null) {
-                                    if (strings[i].compareTo(strings[indexOfMin]) >= 0) {
-                                        indexOfMin = i;
-                                    }
-                                } else {
-                                    for (int j = 0; j < strings.length; j++) {
-                                        if (strings[j] != null) {
-                                            indexOfMin = j;
+                    } else if (sortingDirection == SortDirection.DESC) {
+                        while (Utility.allNull(strings)) {
+                            if (strings.length > 1) {
+                                int indexOfMin = 0;
+                                for (int i = 0; i < strings.length; i++) {
+                                    if (strings[i] != null && strings[indexOfMin] != null) {
+                                        if (strings[i].compareTo(strings[indexOfMin]) >= 0) {
+                                            indexOfMin = i;
+                                        }
+                                    } else {
+                                        for (int j = 0; j < strings.length; j++) {
+                                            if (strings[j] != null) {
+                                                indexOfMin = j;
+                                            }
                                         }
                                     }
                                 }
+                                fw.append(strings[indexOfMin]).append("\n");
+                                strings[indexOfMin] = inputFiles.get(indexOfMin).readLine();
+                            } else {
+                                fw.append(strings[0]).append("\n");
+                                strings[0] = inputFiles.get(0).readLine();
                             }
-                            fw.append(strings[indexOfMin]).append("\n");
-                            strings[indexOfMin] = inputFiles.get(indexOfMin).readLine();
-                        } else {
-                            fw.append(strings[0]).append("\n");
-                            strings[0] = inputFiles.get(0).readLine();
+                            fw.flush();
                         }
-                        fw.flush();
                     }
-                    fw.close();
                 }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
             Utility.closeFiles(inputFiles);
             Utility.deleteFiles(TMP);

@@ -8,7 +8,7 @@ import java.io.*;
 public class SortCheckImpl implements SortCheck {
 
     @Override
-    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortingDirection) throws IOException {
+    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortingDirection) {
         try (BufferedReader br = new BufferedReader(new FileReader(file.getName()))) {
             try {
                 Comparable x = null;
@@ -55,6 +55,8 @@ public class SortCheckImpl implements SortCheck {
             } catch (NumberFormatException e) {
                 return false;
             }
+        } catch (IOException e) {
+            System.out.printf("Ошибка чтения файла %s\n", file.getName());
         }
         return true;
     }

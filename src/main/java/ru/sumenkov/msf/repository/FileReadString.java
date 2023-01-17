@@ -22,7 +22,7 @@ public class FileReadString implements FileRead {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.printf("Ошибка чтения файла %s\n", file.getName());
         }
 
         String[] array = new String[list.size()];
