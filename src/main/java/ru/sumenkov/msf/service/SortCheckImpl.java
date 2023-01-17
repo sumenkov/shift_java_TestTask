@@ -8,33 +8,36 @@ public class SortCheckImpl implements SortCheck {
     public boolean isSorted(File file, String sortDateType, String sortingDirection) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file.getName()));
         if (sortDateType.equals("i")) {
+            try {
+                int num1 = Integer.parseInt(br.readLine());
+                int num2 = Integer.parseInt(br.readLine());
 
-            int num1 = Integer.parseInt(br.readLine());
-            int num2 = Integer.parseInt(br.readLine());
+                if (sortingDirection.equals("a")) {
+                    while (true) {
+                        if (num1 > num2)
+                            return false;
 
-            if (sortingDirection.equals("a")) {
-                while (true) {
-                    if (num1 > num2)
-                        return false;
+                        num1 = num2;
+                        String tmp = br.readLine();
+                        if (tmp != null)
+                            num2 = Integer.parseInt(tmp);
+                        else break;
+                    }
 
-                    num1 = num2;
-                    String tmp = br.readLine();
-                    if (tmp != null)
-                        num2 = Integer.parseInt(tmp);
-                    else break;
+                } else if (sortingDirection.equals("d")) {
+                    while (true) {
+                        if (num1 < num2)
+                            return false;
+
+                        num1 = num2;
+                        String tmp = br.readLine();
+                        if (tmp != null)
+                            num2 = Integer.parseInt(tmp);
+                        else break;
+                    }
                 }
-
-            } else if (sortingDirection.equals("d")) {
-                while (true) {
-                    if (num1 < num2)
-                        return false;
-
-                    num1 = num2;
-                    String tmp = br.readLine();
-                    if (tmp != null)
-                        num2 = Integer.parseInt(tmp);
-                    else break;
-                }
+            } catch (NumberFormatException e) {
+                return false;
             }
         } else if (sortDateType.equals("s")) {
             String str1 = br.readLine();

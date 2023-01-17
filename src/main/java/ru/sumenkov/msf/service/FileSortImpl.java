@@ -16,10 +16,16 @@ public class FileSortImpl implements FileSort {
     public void filesSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
 
         try {
-            new File("tmp/").mkdir();
+            if (!new File("tmp/").mkdir())
+                System.out.println("Не удалось создать директорию для временных файлов.");
+
             long freeMemory = Runtime.getRuntime().freeMemory() / 3;
             for (String inFile : inFiles) {
-                fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
+                try {
+                    fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
+                } catch (FileNotFoundException e) {
+                    System.out.println(e.getMessage());
+                }
             }
             fewFiles(sortDateType, sortingDirection, outFile);
         } catch (IOException e) {
@@ -29,7 +35,9 @@ public class FileSortImpl implements FileSort {
 
     void fileAddSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
         try {
-            new File("tmp/").mkdir();
+            if (!new File("tmp/").mkdir())
+                System.out.println("Не удалось создать директорию для временных файлов.");
+
             long freeMemory = Runtime.getRuntime().freeMemory() / 15;
 
             fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
@@ -65,11 +73,14 @@ public class FileSortImpl implements FileSort {
             fw = new FileWriter(file + ".stmp");
         else
             fw = new FileWriter("tmp/" + file + ".stmp");
+
         if (sortDateType.equals("i")) {
             int[] ints = ReaderInFiles.readI(file);
-            mergeSort.mergeSort(ints, sortingDirection);
-            for (int num: ints) {
-                fw.append(String.valueOf(num)).append("\n");
+            if (ints.length != 0) {
+                mergeSort.mergeSort(ints, sortingDirection);
+                for (int num : ints) {
+                    fw.append(String.valueOf(num)).append("\n");
+                }
             }
             fw.close();
         }
@@ -119,7 +130,9 @@ public class FileSortImpl implements FileSort {
 
                     File newFile = new File("tmp/" + file.getName() + partCounter + ".tmp");
                     smallFile("tmp/" + newFile.getName(), sortDateType, sortingDirection);
-                    newFile.delete();
+
+                    if (!file.delete())
+                        System.out.printf("Не удалось удалить файл %s\n", file.getName());
 
                     partCounter++;
                     fw = new FileWriter("tmp/" + file.getName() + partCounter + ".tmp");
@@ -136,13 +149,18 @@ public class FileSortImpl implements FileSort {
         List<String> filesNames = new ArrayList<>();
 
         for (File tmpFile: Objects.requireNonNull(new File("tmp").listFiles())) {
-            filesNames.add("tmp/" + tmpFile.getName());
+            if (tmpFile.length() != 0)
+                filesNames.add("tmp/" + tmpFile.getName());
         }
 
-        if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
+        if (filesNames.size() == 0) {
+            System.out.println("Нет данных для сортировки.");
+            System.exit(0);
+        } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
             Path newFile = Paths.get(outFile);
             Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+            System.out.printf("Файл с результатами сохранен как %s\n", outFile);
         } else {
 
             List<BufferedReader> inputFiles = new ArrayList<>();
@@ -328,6 +346,7 @@ public class FileSortImpl implements FileSort {
                 deleteDirectory(f);
             }
         }
-        file.delete();
+        if (!file.delete())
+            System.out.printf("Не удалось удалить файл %s\n", file.getName());
     }
 }
