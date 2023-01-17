@@ -1,4 +1,4 @@
-package ru.sumenkov.msf.service;
+package ru.sumenkov.msf.repository;
 
 import java.util.List;
 

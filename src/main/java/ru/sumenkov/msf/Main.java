@@ -1,7 +1,7 @@
 package ru.sumenkov.msf;
 
-import ru.sumenkov.msf.service.FileSort;
-import ru.sumenkov.msf.service.FileSortImpl;
+import ru.sumenkov.msf.repository.FileSort;
+import ru.sumenkov.msf.repository.FileSortImpl;
 
 import java.io.File;
 import java.util.ArrayList;
