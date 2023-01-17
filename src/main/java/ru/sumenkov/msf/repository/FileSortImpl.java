@@ -15,19 +15,12 @@ import java.util.Objects;
 
 public class FileSortImpl implements FileSort {
 
-    private static final File TMP = new File("tmp/");
+    public static final File TMP = new File("tmp/");
 
     @Override
     public void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile) {
 
         try {
-            if (!TMP.isDirectory()) {
-                if (!TMP.mkdir()) {
-                    System.out.println("Не удалось создать директорию для временных файлов.");
-                    System.exit(0);
-                }
-            }
-
             long freeMemory = Runtime.getRuntime().freeMemory() / 3;
             for (File inFile : inFiles) {
                 try {
@@ -44,13 +37,6 @@ public class FileSortImpl implements FileSort {
 
     void fileSecondSort(File inFile, SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
         try {
-            if (!TMP.isDirectory()) {
-                if (!TMP.mkdir()) {
-                    System.out.println("Не удалось создать директорию для временных файлов.");
-                    System.exit(0);
-                }
-            }
-
             long freeMemory = Runtime.getRuntime().freeMemory() / 15;
 
             try {
@@ -176,8 +162,8 @@ public class FileSortImpl implements FileSort {
 
         if (filesNames.size() == 0) {
             System.out.println("Нет данных для сортировки.");
-            Utility.deleteDirectory(new File("tmp"));
-            System.exit(0);
+            Utility.deleteDirectory(TMP);
+            return;
         } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
             Path newFile = Paths.get(outputFile.getName());
@@ -313,7 +299,7 @@ public class FileSortImpl implements FileSort {
                 }
             }
             Utility.closeFiles(inputFiles);
-            Utility.deleteDirectory(TMP);
+            Utility.deleteFiles(TMP);
             fileSecondSort(outputFile, sortDateType, sortingDirection, outputFile);
         }
         Utility.deleteDirectory(TMP);

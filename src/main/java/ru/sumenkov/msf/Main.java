@@ -15,20 +15,21 @@ public class Main {
     public static void main(String[] args) {
 
         ArgsCheck argsCheck = new ArgsCheckImpl(args);
-        argsCheck.check();
+        if (argsCheck.check()) {
+            SortDataType sortDataType = argsCheck.getSortDataType();
+            SortDirection sortingDirection = argsCheck.getSortDirection();
+            int indexInputFile = argsCheck.getIndexInputFile();
+            File outputFileName = new File(args[indexInputFile - 1]);
 
-        SortDataType sortDataType = argsCheck.getSortDataType();
-        SortDirection sortingDirection = argsCheck.getSortDirection();
-        int indexInputFile = argsCheck.getIndexInputFile();
-        File outputFileName = new File(args[indexInputFile - 1]);
+            FileCheck fileCheck = new FileCheckImpl();
 
-        FileCheck fileCheck = new FileCheckImpl();
-
-        if (fileCheck.outputFile(outputFileName)) {
-            List<File> listFile = fileCheck.listFile(args, indexInputFile);
-
-            FileSort fileSort = new FileSortImpl();
-            fileSort.runSort(listFile, sortDataType, sortingDirection, outputFileName);
+            if (fileCheck.outputFile(outputFileName)) {
+                List<File> listFile = fileCheck.listFile(args, indexInputFile);
+                if (listFile.size() != 0) {
+                    FileSort fileSort = new FileSortImpl();
+                    fileSort.runSort(listFile, sortDataType, sortingDirection, outputFileName);
+                }
+            }
         }
     }
 }

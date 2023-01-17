@@ -17,7 +17,6 @@ public class Utility {
                 " -s   обязательно: Сортировка строк\n" +
                 "output.file  обязательно: Имя файла для сохранения результата.\n" +
                 "input.files  обязательно: Один, или более входных файлов.\n");
-        System.exit(0);
     }
 
     public static boolean isNumeric(String str) {
@@ -66,6 +65,25 @@ public class Utility {
         if (file.exists() || file.isDirectory()) {
             if (!file.delete()) {
                 System.out.printf("Не удалось удалить файл %s\n", file.getName());
+            }
+        }
+    }
+
+    public static void deleteFiles(File file) {
+        if (file.isDirectory()) {
+            File[] contents = file.listFiles();
+            if (contents != null) {
+                for (File f : contents) {
+                    if (f.isFile()) {
+                        if (!f.delete()) {
+                            System.out.printf("Не удалось удалить файл %s\n", file.getName());
+                        }
+                    } else if (f.isDirectory()) {
+                        deleteDirectory(f);
+                    }
+                }
+            } else {
+                System.out.printf("Не удалось найти файл %s\n", file.getName());
             }
         }
     }

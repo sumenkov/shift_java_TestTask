@@ -11,7 +11,7 @@ public interface ArgsCheck {
      * Проверка параметров запуска и инициализация переменных для геттеров:
      * {@link #getSortDataType()}, {@link #getSortDirection()}, {@link #getIndexInputFile()}
      */
-    void check();
+    boolean check();
 
     /**
      * Для инициализации значения вызови хотя бы один раз {@link #check()}
