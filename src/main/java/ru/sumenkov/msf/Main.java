@@ -13,10 +13,20 @@ public class Main {
 
     public static void main(String[] args) {
 
-        if (args.length < 3) helper();
+        for (String arg: args) {
+            if (arg.contains("-")) {
+                if (!arg.contains("-i") || !arg.contains("-s") || !arg.contains("-a") || !arg.contains("-d")) {
+                    System.out.println("Неизвестный параметр запуска.\n");
+                    helper();
+                }
+            }
+        }
+
+        int lengthArgs = args.length;
+        if (lengthArgs < 3) helper();
         else if (Arrays.toString(args).contains("-i") && Arrays.toString(args).contains("-s")) helper();
         else if (Arrays.toString(args).contains("-a") && Arrays.toString(args).contains("-d")) helper();
-        else if ((Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d")) && args.length < 4) {
+        else if ((Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d")) && lengthArgs < 4) {
             System.out.println("Не указан файл для записи или чтения.\n");
             helper();
         }
