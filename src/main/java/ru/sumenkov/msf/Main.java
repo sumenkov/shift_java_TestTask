@@ -14,9 +14,10 @@ public class Main {
     public static void main(String[] args) {
 
         for (String arg: args) {
+            List<String> list = new ArrayList<>(Arrays.asList("-i", "-s", "-a", "-d"));
             if (arg.contains("-")) {
-                if (!arg.contains("-i") || !arg.contains("-s") || !arg.contains("-a") || !arg.contains("-d")) {
-                    System.out.println("Неизвестный параметр запуска.\n");
+                if (!list.contains(arg)) {
+                    System.out.println("Неизвестный параметр запуска.");
                     helper();
                 }
             }
@@ -27,7 +28,7 @@ public class Main {
         else if (Arrays.toString(args).contains("-i") && Arrays.toString(args).contains("-s")) helper();
         else if (Arrays.toString(args).contains("-a") && Arrays.toString(args).contains("-d")) helper();
         else if ((Arrays.toString(args).contains("-a") || Arrays.toString(args).contains("-d")) && lengthArgs < 4) {
-            System.out.println("Не указан файл для записи или чтения.\n");
+            System.out.println("Не указан файл для записи или чтения.");
             helper();
         }
 

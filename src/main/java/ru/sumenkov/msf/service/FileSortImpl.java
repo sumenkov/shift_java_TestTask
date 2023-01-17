@@ -347,7 +347,10 @@ public class FileSortImpl implements FileSort {
                 deleteDirectory(f);
             }
         }
-        if (!file.delete())
-            System.out.printf("Не удалось удалить файл %s\n", file.getName());
+
+        if (file.exists() || file.isDirectory()) {
+            if (!file.delete())
+                System.out.printf("Не удалось удалить файл %s\n", file.getName());
+        }
     }
 }
