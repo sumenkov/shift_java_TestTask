@@ -1,5 +1,7 @@
 package ru.sumenkov.msf.repository;
 
+import ru.sumenkov.msf.service.Utility;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ReaderInFiles {
+public class ReaderFile {
 
     public static int[] readI(String fileName) {
 
@@ -19,7 +21,7 @@ public class ReaderInFiles {
         {
             String line;
             while ((line = br.readLine()) != null) {
-                if (isNumeric(line) && !line.contains(" ") && !line.equals("")) {
+                if (Utility.isNumeric(line) && !line.contains(" ") && !line.equals("")) {
                     list.add(Integer.valueOf(line));
                 } else {
                     System.out.printf("Неверный формат данных в строке. Файл %s, данные в строке %s\n", file.getName(), line);
@@ -64,14 +66,5 @@ public class ReaderInFiles {
         }
 
         return array;
-    }
-
-    static boolean isNumeric(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch(NumberFormatException e){
-            return false;
-        }
     }
 }

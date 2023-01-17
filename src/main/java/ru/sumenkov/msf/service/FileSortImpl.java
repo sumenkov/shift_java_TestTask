@@ -1,6 +1,6 @@
 package ru.sumenkov.msf.service;
 
-import ru.sumenkov.msf.repository.ReaderInFiles;
+import ru.sumenkov.msf.repository.ReaderFile;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class FileSortImpl implements FileSort {
 
-    public void filesSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
+    public void runSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
 
         try {
             if (!new File("tmp/").mkdir())
@@ -33,7 +33,7 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    void fileAddSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
+    void fileSecondSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
         try {
             if (!new File("tmp/").mkdir())
                 System.out.println("Не удалось создать директорию для временных файлов.");
@@ -75,7 +75,7 @@ public class FileSortImpl implements FileSort {
             fw = new FileWriter("tmp/" + file + ".stmp");
 
         if (sortDateType.equals("i")) {
-            int[] ints = ReaderInFiles.readI(file);
+            int[] ints = ReaderFile.readI(file);
             if (ints.length != 0) {
                 mergeSort.mergeSort(ints, sortingDirection);
                 for (int num : ints) {
@@ -85,7 +85,7 @@ public class FileSortImpl implements FileSort {
             fw.close();
         }
         else if (sortDateType.equals("s")) {
-            String[] strings = ReaderInFiles.readS(file);
+            String[] strings = ReaderFile.readS(file);
             mergeSort.mergeSort(strings, sortingDirection);
 
             for (String str: strings) {
@@ -155,7 +155,7 @@ public class FileSortImpl implements FileSort {
 
         if (filesNames.size() == 0) {
             System.out.println("Нет данных для сортировки.");
-            deleteDirectory(new File("tmp"));
+            Utility.deleteDirectory(new File("tmp"));
             System.exit(0);
         } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
@@ -178,7 +178,7 @@ public class FileSortImpl implements FileSort {
                         ints[i] = Integer.parseInt(tmp);
                 }
                 if (sortingDirection.equals("a")) {
-                    while (allNullI(ints)) {
+                    while (Utility.allNullI(ints)) {
                         if (ints.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < ints.length; i++) {
@@ -201,7 +201,7 @@ public class FileSortImpl implements FileSort {
                     }
                     fw.close();
                 } else if (sortingDirection.equals("d")) {
-                    while (allNullI(ints)) {
+                    while (Utility.allNullI(ints)) {
                         if (ints.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < ints.length; i++) {
@@ -236,7 +236,7 @@ public class FileSortImpl implements FileSort {
                     }
                 }
                 if (sortingDirection.equals("a")) {
-                    while (allNullS(strings)) {
+                    while (Utility.allNullS(strings)) {
                         if (strings.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < strings.length; i++) {
@@ -261,7 +261,7 @@ public class FileSortImpl implements FileSort {
                     }
                     fw.close();
                 } else if (sortingDirection.equals("d")) {
-                    while (allNullS(strings)) {
+                    while (Utility.allNullS(strings)) {
                         if (strings.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < strings.length; i++) {
@@ -287,35 +287,11 @@ public class FileSortImpl implements FileSort {
                     fw.close();
                 }
             }
-            closeFiles(inputFiles);
-            deleteDirectory(new File("tmp"));
-            fileAddSort(outFile, sortDateType, sortingDirection, outFile);
+            Utility.closeFiles(inputFiles);
+            Utility.deleteDirectory(new File("tmp"));
+            fileSecondSort(outFile, sortDateType, sortingDirection, outFile);
         }
-        deleteDirectory(new File("tmp"));
-    }
-
-    boolean allNullI(Integer[] ints) {
-        boolean b = false;
-
-        for (Integer i: ints) {
-            if (i != null) {
-                b = true;
-                break;
-            }
-        }
-        return b;
-    }
-
-    boolean allNullS(String[] strings) {
-        boolean b = false;
-
-        for (String i: strings) {
-            if (i != null) {
-                b = true;
-                break;
-            }
-        }
-        return b;
+        Utility.deleteDirectory(new File("tmp"));
     }
 
     void writeLineI(FileWriter fw, Integer[] ints, List<BufferedReader> inputFiles, Integer index) throws IOException {
@@ -328,29 +304,6 @@ public class FileSortImpl implements FileSort {
             ints[index] = null;
         } else {
             ints[index] = Integer.parseInt(tmp);
-        }
-    }
-
-    void closeFiles(List<BufferedReader> inputFiles) throws IOException {
-        for (BufferedReader br: inputFiles) {
-            br.close();
-        }
-    }
-
-    public static void deleteDirectory(File file)
-    {
-        if (file.isDirectory())
-        {
-            File[] contents = file.listFiles();
-            assert contents != null;
-            for (File f: contents) {
-                deleteDirectory(f);
-            }
-        }
-
-        if (file.exists() || file.isDirectory()) {
-            if (!file.delete())
-                System.out.printf("Не удалось удалить файл %s\n", file.getName());
         }
     }
 }

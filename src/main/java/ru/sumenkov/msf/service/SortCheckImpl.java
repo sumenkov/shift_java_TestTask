@@ -14,8 +14,10 @@ public class SortCheckImpl implements SortCheck {
 
                 if (sortingDirection.equals("a")) {
                     while (true) {
-                        if (num1 > num2)
+                        if (num1 > num2) {
+                            br.close();
                             return false;
+                        }
 
                         num1 = num2;
                         String tmp = br.readLine();
@@ -26,8 +28,10 @@ public class SortCheckImpl implements SortCheck {
 
                 } else if (sortingDirection.equals("d")) {
                     while (true) {
-                        if (num1 < num2)
+                        if (num1 < num2) {
+                            br.close();
                             return false;
+                        }
 
                         num1 = num2;
                         String tmp = br.readLine();
@@ -37,6 +41,7 @@ public class SortCheckImpl implements SortCheck {
                     }
                 }
             } catch (NumberFormatException e) {
+                br.close();
                 return false;
             }
         } else if (sortDateType.equals("s")) {
@@ -45,16 +50,20 @@ public class SortCheckImpl implements SortCheck {
 
             if (sortingDirection.equals("a")) {
                 while (str2 != null) {
-                    if (str1.compareTo(str2) > 0)
+                    if (str1.compareTo(str2) > 0) {
+                        br.close();
                         return false;
+                    }
 
                     str1 = str2;
                     str2 = br.readLine();
                 }
             } else if (sortingDirection.equals("d")) {
                 while (str2 != null) {
-                    if (str1.compareTo(str2) < 0)
+                    if (str1.compareTo(str2) < 0) {
+                        br.close();
                         return false;
+                    }
 
                     str1 = str2;
                     str2 = br.readLine();

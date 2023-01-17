@@ -77,7 +77,7 @@ public class Main {
         }
 
         FileSort fileSort = new FileSortImpl();
-        fileSort.filesSort(inFiles, sortDateType, sortingDirection, outFile);
+        fileSort.runSort(inFiles, sortDateType, sortingDirection, outFile);
 
     }
 
