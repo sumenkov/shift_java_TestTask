@@ -1,8 +1,10 @@
 package ru.sumenkov.msf.repository;
 
+import java.io.File;
 import java.util.List;
 
 public interface FileCheck {
-    void outputFile(String outputFile);
-    List<String> listFile(String[] args, int startIndex);
+    boolean outputFile(File outputFile);
+
+    List<File> listFile(String[] args, int startIndex);
 }

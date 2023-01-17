@@ -1,76 +1,61 @@
 package ru.sumenkov.msf.service;
 
+import ru.sumenkov.msf.SortDataType;
+import ru.sumenkov.msf.SortDirection;
+
 import java.io.*;
 
 public class SortCheckImpl implements SortCheck {
 
     @Override
-    public boolean isSorted(File file, String sortDateType, String sortingDirection) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(file.getName()));
-        if (sortDateType.equals("i")) {
+    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortingDirection) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(file.getName()))) {
             try {
-                int num1 = Integer.parseInt(br.readLine());
-                int num2 = Integer.parseInt(br.readLine());
+                Comparable x = null;
+                Comparable y = null;
 
-                if (sortingDirection.equals("a")) {
-                    while (true) {
-                        if (num1 > num2) {
-                            br.close();
+                if (sortDateType == SortDataType.INTEGER) {
+                    x = Integer.parseInt(br.readLine());
+                    y = Integer.parseInt(br.readLine());
+                } else if (sortDateType == SortDataType.STRING) {
+                    x = br.readLine();
+                    y = br.readLine();
+                }
+
+                while (true) {
+                    if (sortingDirection == SortDirection.ASC) {
+                        if (x != null && y != null) {
+                            if (x.compareTo(y) > 0) {
+                                return false;
+                            }
+                        } else {
                             return false;
                         }
-
-                        num1 = num2;
-                        String tmp = br.readLine();
-                        if (tmp != null)
-                            num2 = Integer.parseInt(tmp);
-                        else break;
+                    } else if (sortingDirection == SortDirection.DESC) {
+                        if (x != null && y != null) {
+                            if (x.compareTo(y) < 0) {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
                     }
 
-                } else if (sortingDirection.equals("d")) {
-                    while (true) {
-                        if (num1 < num2) {
-                            br.close();
-                            return false;
-                        }
+                    x = y;
+                    String tmp = br.readLine();
 
-                        num1 = num2;
-                        String tmp = br.readLine();
-                        if (tmp != null)
-                            num2 = Integer.parseInt(tmp);
-                        else break;
+                    if (tmp != null && sortDateType == SortDataType.INTEGER) {
+                        y = Integer.parseInt(tmp);
+                    } else if (tmp != null && sortDateType == SortDataType.STRING) {
+                        y = tmp;
+                    } else {
+                        break;
                     }
                 }
             } catch (NumberFormatException e) {
-                br.close();
                 return false;
             }
-        } else if (sortDateType.equals("s")) {
-            String str1 = br.readLine();
-            String str2 = br.readLine();
-
-            if (sortingDirection.equals("a")) {
-                while (str2 != null) {
-                    if (str1.compareTo(str2) > 0) {
-                        br.close();
-                        return false;
-                    }
-
-                    str1 = str2;
-                    str2 = br.readLine();
-                }
-            } else if (sortingDirection.equals("d")) {
-                while (str2 != null) {
-                    if (str1.compareTo(str2) < 0) {
-                        br.close();
-                        return false;
-                    }
-
-                    str1 = str2;
-                    str2 = br.readLine();
-                }
-            }
         }
-        br.close();
         return true;
     }
 }

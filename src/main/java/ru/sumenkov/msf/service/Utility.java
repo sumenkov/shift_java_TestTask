@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Utility {
 
-    public static void helper() {
+    public static void printHelpInto() {
         System.out.println("Проверьте параметры запуска программы:\n" +
                 "usage: MergeSortFiles [OPTIONS] output.file input.files ...\n" +
                 "[-a] [-d] [-i | -s]\n" +
@@ -19,19 +19,20 @@ public class Utility {
                 "input.files  обязательно: Один, или более входных файлов.\n");
         System.exit(0);
     }
+
     public static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
             return true;
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
     }
 
-    public static boolean allNullI(Integer[] ints) {
+    public static boolean allNull(Object[] ints) {
         boolean b = false;
 
-        for (Integer i: ints) {
+        for (Object i : ints) {
             if (i != null) {
                 b = true;
                 break;
@@ -40,38 +41,32 @@ public class Utility {
         return b;
     }
 
-    public static boolean allNullS(String[] strings) {
-        boolean b = false;
-
-        for (String i: strings) {
-            if (i != null) {
-                b = true;
-                break;
+    public static void closeFiles(List<BufferedReader> inputFiles) {
+        for (BufferedReader br : inputFiles) {
+            try {
+                br.close();
+            } catch (IOException e) {
+                System.out.println("Не смог закрыть поток данных из массива потоков.");
             }
         }
-        return b;
     }
 
-    public static void closeFiles(List<BufferedReader> inputFiles) throws IOException {
-        for (BufferedReader br: inputFiles) {
-            br.close();
-        }
-    }
-
-    public static void deleteDirectory(File file)
-    {
-        if (file.isDirectory())
-        {
+    public static void deleteDirectory(File file) {
+        if (file.isDirectory()) {
             File[] contents = file.listFiles();
-            assert contents != null;
-            for (File f: contents) {
-                deleteDirectory(f);
+            if (contents != null) {
+                for (File f : contents) {
+                    deleteDirectory(f);
+                }
+            } else {
+                System.out.printf("Не удалось найти файл %s\n", file.getName());
             }
         }
 
         if (file.exists() || file.isDirectory()) {
-            if (!file.delete())
+            if (!file.delete()) {
                 System.out.printf("Не удалось удалить файл %s\n", file.getName());
+            }
         }
     }
 }

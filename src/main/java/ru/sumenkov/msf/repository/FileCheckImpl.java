@@ -10,47 +10,55 @@ import java.util.Scanner;
 
 public class FileCheckImpl implements FileCheck {
     @Override
-    public void outputFile(String outputFile) {
+    public boolean outputFile(File outputFile) {
 
-        File of = new File(outputFile);
-        if (of.exists() && !of.isDirectory()) {
-            Scanner reader = new Scanner(System.in);
-            System.out.printf("Файл %s уже существует, заменить его на новый? (Y/n)\n", of.getName());
-            String str = reader.next();
-            if (str.equals("n") || str.equals("N") || str.equals("т") || str.equals("Т")) {
-                System.out.println("Выход из программы.\nУкажите другое имя файла для сохранения результатов.");
-                System.exit(0);
+        if (outputFile.exists() && !outputFile.isDirectory()) {
+            try (Scanner reader = new Scanner(System.in)) {
+                System.out.printf("Файл %s уже существует, заменить его на новый? (Y/n)\n", outputFile.getName());
+                String str = reader.next();
+                if (str.equals("n") || str.equals("N") || str.equals("т") || str.equals("Т")) {
+                    System.out.println("Выход из программы.\nУкажите другое имя файла для сохранения результатов.");
+                    return false;
+                }
+
+                if (!outputFile.delete()) {
+                    System.out.printf("Не удалось удалить файл %s\n", outputFile.getName());
+                    return false;
+                }
             }
-            if (!of.delete()) {
-                System.out.printf("Не удалось удалить файл %s\n", of.getName());
-                System.exit(0);
-            }
-            reader.close();
         }
+        return true;
     }
 
     @Override
-    public List<String> listFile(String[] args, int startIndex) {
+    public List<File> listFile(String[] args, int indexInputFile) {
 
-        List<String> listFile = new ArrayList<>(Arrays.asList(args).subList(startIndex, args.length));
+        List<String> allListFile = new ArrayList<>(Arrays.asList(args).subList(indexInputFile, args.length));
+        List<File> result = new ArrayList<>();
 
-        for (int i = 0; i < listFile.size(); i++) {
-            File f = new File(listFile.get(i));
-            if (!f.exists() || f.isDirectory()) {
-                System.out.printf("Файл %s не существует, пропускаем.\n", f.getName());
-                listFile.remove(f.getName());
-                i--;
-            } else if (f.length() == 0) {
-                System.out.printf("Файл %s пустой, пропускаем.\n", f.getName());
-                listFile.remove(f.getName());
-                i--;
+        for (String s : allListFile) {
+            File file = new File(s);
+            if (checkFile(file)) {
+                result.add(file);
             }
         }
 
-        if (listFile.size() == 0) {
+        if (result.size() == 0) {
             System.out.println("Нет файлов для чтения.");
-            Utility.helper();
+            Utility.printHelpInto();
         }
-        return listFile;
+
+        return result;
+    }
+
+    private boolean checkFile(File file) {
+        if (!file.exists() || file.isDirectory()) {
+            System.out.printf("Файл %s не существует, пропускаем.\n", file.getName());
+            return false;
+        } else if (file.length() == 0) {
+            System.out.printf("Файл %s пустой, пропускаем.\n", file.getName());
+            return false;
+        }
+        return true;
     }
 }

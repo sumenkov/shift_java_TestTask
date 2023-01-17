@@ -1,5 +1,7 @@
 package ru.sumenkov.msf.repository;
 
+import ru.sumenkov.msf.SortDataType;
+import ru.sumenkov.msf.SortDirection;
 import ru.sumenkov.msf.service.*;
 
 import java.io.*;
@@ -13,42 +15,57 @@ import java.util.Objects;
 
 public class FileSortImpl implements FileSort {
 
+    private static final File TMP = new File("tmp/");
+
     @Override
-    public void runSort(List<String> inFiles, String sortDateType, String sortingDirection, String outFile) {
+    public void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile) {
 
         try {
-            if (!new File("tmp/").mkdir())
-                System.out.println("Не удалось создать директорию для временных файлов.");
+            if (!TMP.isDirectory()) {
+                if (!TMP.mkdir()) {
+                    System.out.println("Не удалось создать директорию для временных файлов.");
+                    System.exit(0);
+                }
+            }
 
             long freeMemory = Runtime.getRuntime().freeMemory() / 3;
-            for (String inFile : inFiles) {
+            for (File inFile : inFiles) {
                 try {
-                    fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
+                    fileSort(inFile, sortDateType, sortDirection, freeMemory);
                 } catch (FileNotFoundException e) {
                     System.out.println(e.getMessage());
                 }
             }
-            fewFiles(sortDateType, sortingDirection, outFile);
+            fewFiles(sortDateType, sortDirection, outputFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    void fileSecondSort(String inFile, String sortDateType, String sortingDirection, String outFile) {
+    void fileSecondSort(File inFile, SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
         try {
-            if (!new File("tmp/").mkdir())
-                System.out.println("Не удалось создать директорию для временных файлов.");
+            if (!TMP.isDirectory()) {
+                if (!TMP.mkdir()) {
+                    System.out.println("Не удалось создать директорию для временных файлов.");
+                    System.exit(0);
+                }
+            }
 
             long freeMemory = Runtime.getRuntime().freeMemory() / 15;
 
-            fileSort(new File(inFile), sortDateType, sortingDirection, freeMemory);
-            fewFiles(sortDateType, sortingDirection, outFile);
+            try {
+                fileSort(inFile, sortDateType, sortingDirection, freeMemory);
+            } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+            fewFiles(sortDateType, sortingDirection, outputFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    void fileSort(File file, String sortDateType, String sortingDirection, long freeMemory) throws IOException {
+    void fileSort(File file, SortDataType sortDateType, SortDirection sortingDirection, long freeMemory)
+            throws IOException {
 
         SortCheck sortCheck = new SortCheckImpl();
 
@@ -56,50 +73,50 @@ public class FileSortImpl implements FileSort {
             Path oldFile = file.toPath();
             Path newFile = Paths.get("tmp/" + file.getName() + ".sort");
             Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
+        } else if (file.length() >= freeMemory) {
+            splitBigFile(file, sortDateType, sortingDirection, freeMemory);
         } else {
-            if (file.length() >= freeMemory) {
-                splitBigFile(file, sortDateType, sortingDirection, freeMemory);
-            } else {
-                smallFile(file.getName(), sortDateType, sortingDirection);
-            }
+            smallFile(file, sortDateType, sortingDirection);
         }
     }
 
-    void smallFile(String file, String sortDateType, String sortingDirection) throws IOException {
+    void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) throws IOException {
 
         MergeSort mergeSort = new MergeSortImpl();
-        FileRead fileRead = new FileReadImpl();
-        FileWriter fw;
+        FileRead fileReadInteger = new FileReadInteger();
+        FileRead fileReadString = new FileReadString();
 
-        if (file.split("/")[0].equals("tmp"))
-            fw = new FileWriter(file + ".stmp");
-        else
-            fw = new FileWriter("tmp/" + file + ".stmp");
+        try (FileWriter fw = fileWriter(file)) {
+            Comparable[] array = new Comparable[0];
 
-        if (sortDateType.equals("i")) {
-            int[] ints = fileRead.readI(file);
-            if (ints.length != 0) {
-                mergeSort.mergeSort(ints, sortingDirection);
-                for (int num : ints) {
+            if (sortDateType == SortDataType.INTEGER) {
+                array = fileReadInteger.read(file);
+            } else if (sortDateType == SortDataType.STRING) {
+                array = fileReadString.read(file);
+            } else {
+                System.out.println("Не определен формат данных для сортировки");
+            }
+
+            if (array.length != 0) {
+                mergeSort.mergeSort(array, sortingDirection);
+                for (Comparable num : array) {
                     fw.append(String.valueOf(num)).append("\n");
                 }
             }
-            fw.close();
-        }
-        else if (sortDateType.equals("s")) {
-            String[] strings = fileRead.readS(file);
-            mergeSort.mergeSort(strings, sortingDirection);
-
-            for (String str: strings) {
-                fw.append(str).append("\n");
-            }
-            fw.close();
-        } else {
-            System.out.println("Не определен формат данных для сортировки");
         }
     }
 
-    void splitBigFile(File file, String sortDateType, String sortingDirection, long freeMemory) {
+    FileWriter fileWriter(File file) throws IOException {
+        FileWriter fw;
+        if (file.getName().split("/")[0].equals("tmp")) {
+            fw = new FileWriter(file + ".stmp");
+        } else {
+            fw = new FileWriter("tmp/" + file + ".stmp");
+        }
+        return fw;
+    }
+
+    void splitBigFile(File file, SortDataType sortDateType, SortDirection sortingDirection, long freeMemory) {
 
         int partCounter = 1;
         long fileLength = file.length();
@@ -107,34 +124,35 @@ public class FileSortImpl implements FileSort {
                 fileLength / freeMemory : fileLength / freeMemory + 1;
         long allRows = 0;
 
-        try (FileReader reader = new FileReader(file);
-            BufferedReader br = new BufferedReader(reader)) {
+        // ! ->
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             while (br.readLine() != null) {
                 allRows++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // !
 
         long maxRows = allRows / maxPartCounter;
 
-        try (FileReader reader = new FileReader(file);
-            BufferedReader br = new BufferedReader(reader)) {
-            String row;
-            int rownum = 1;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             FileWriter fw = new FileWriter("tmp/" + file.getName() + partCounter + ".tmp");
 
+            String row;
+            int rownum = 1;
             while ((row = br.readLine()) != null) {
-                rownum ++;
+                rownum++;
                 fw.append(row).append("\n");
                 if ((rownum / maxRows) > (partCounter - 1)) {
                     fw.close();
 
                     File newFile = new File("tmp/" + file.getName() + partCounter + ".tmp");
-                    smallFile("tmp/" + newFile.getName(), sortDateType, sortingDirection);
+                    smallFile(newFile, sortDateType, sortingDirection);
 
-                    if (!file.delete())
+                    if (!file.delete()) {
                         System.out.printf("Не удалось удалить файл %s\n", file.getName());
+                    }
 
                     partCounter++;
                     fw = new FileWriter("tmp/" + file.getName() + partCounter + ".tmp");
@@ -146,13 +164,14 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    public void fewFiles(String sortDateType, String sortingDirection, String outFile) throws IOException {
+    public void fewFiles(SortDataType sortDateType, SortDirection sortingDirection, File outputFile) throws IOException {
 
         List<String> filesNames = new ArrayList<>();
 
-        for (File tmpFile: Objects.requireNonNull(new File("tmp").listFiles())) {
-            if (tmpFile.length() != 0)
+        for (File tmpFile : Objects.requireNonNull(Objects.requireNonNull(TMP).listFiles())) {
+            if (tmpFile.length() != 0) {
                 filesNames.add("tmp/" + tmpFile.getName());
+            }
         }
 
         if (filesNames.size() == 0) {
@@ -161,26 +180,26 @@ public class FileSortImpl implements FileSort {
             System.exit(0);
         } else if (filesNames.size() == 1 && filesNames.get(0).contains(".sort")) {
             Path oldFile = new File(filesNames.get(0)).toPath();
-            Path newFile = Paths.get(outFile);
+            Path newFile = Paths.get(outputFile.getName());
             Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
-            System.out.printf("Файл с результатами сохранен как %s\n", outFile);
+            System.out.printf("Файл с результатами сохранен как %s\n", outputFile);
         } else {
-
             List<BufferedReader> inputFiles = new ArrayList<>();
-            FileWriter fw = new FileWriter(outFile);
+            FileWriter fw = new FileWriter(outputFile);
 
             for (String fileName : filesNames) {
                 inputFiles.add(new BufferedReader(new FileReader(fileName)));
             }
-            if (sortDateType.equals("i")) {
+
+            if (sortDateType == SortDataType.INTEGER) {
                 Integer[] ints = new Integer[inputFiles.size()];
                 for (int i = 0; i < inputFiles.size(); i++) {
                     String tmp = inputFiles.get(i).readLine();
                     if (tmp != null)
                         ints[i] = Integer.parseInt(tmp);
                 }
-                if (sortingDirection.equals("a")) {
-                    while (Utility.allNullI(ints)) {
+                if (sortingDirection == SortDirection.ASC) {
+                    while (Utility.allNull(ints)) {
                         if (ints.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < ints.length; i++) {
@@ -190,8 +209,9 @@ public class FileSortImpl implements FileSort {
                                     }
                                 } else {
                                     for (int j = 0; j < ints.length; j++) {
-                                        if (ints[j] != null)
+                                        if (ints[j] != null) {
                                             indexOfMin = j;
+                                        }
                                     }
                                 }
                             }
@@ -202,8 +222,8 @@ public class FileSortImpl implements FileSort {
                         fw.flush();
                     }
                     fw.close();
-                } else if (sortingDirection.equals("d")) {
-                    while (Utility.allNullI(ints)) {
+                } else if (sortingDirection == SortDirection.DESC) {
+                    while (Utility.allNull(ints)) {
                         if (ints.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < ints.length; i++) {
@@ -213,8 +233,9 @@ public class FileSortImpl implements FileSort {
                                     }
                                 } else {
                                     for (int j = 0; j < ints.length; j++) {
-                                        if (ints[j] != null)
+                                        if (ints[j] != null) {
                                             indexOfMin = j;
+                                        }
                                     }
                                 }
                             }
@@ -226,7 +247,7 @@ public class FileSortImpl implements FileSort {
                     }
                     fw.close();
                 }
-            } else if (sortDateType.equals("s")) {
+            } else if (sortDateType == SortDataType.STRING) {
                 String[] strings = new String[inputFiles.size()];
                 for (int i = 0; i < inputFiles.size(); i++) {
                     while (true) {
@@ -237,8 +258,8 @@ public class FileSortImpl implements FileSort {
                         }
                     }
                 }
-                if (sortingDirection.equals("a")) {
-                    while (Utility.allNullS(strings)) {
+                if (sortingDirection == SortDirection.ASC) {
+                    while (Utility.allNull(strings)) {
                         if (strings.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < strings.length; i++) {
@@ -248,8 +269,9 @@ public class FileSortImpl implements FileSort {
                                     }
                                 } else {
                                     for (int j = 0; j < strings.length; j++) {
-                                        if (strings[j] != null)
+                                        if (strings[j] != null) {
                                             indexOfMin = j;
+                                        }
                                     }
                                 }
                             }
@@ -262,8 +284,8 @@ public class FileSortImpl implements FileSort {
                         fw.flush();
                     }
                     fw.close();
-                } else if (sortingDirection.equals("d")) {
-                    while (Utility.allNullS(strings)) {
+                } else if (sortingDirection == SortDirection.DESC) {
+                    while (Utility.allNull(strings)) {
                         if (strings.length > 1) {
                             int indexOfMin = 0;
                             for (int i = 0; i < strings.length; i++) {
@@ -273,8 +295,9 @@ public class FileSortImpl implements FileSort {
                                     }
                                 } else {
                                     for (int j = 0; j < strings.length; j++) {
-                                        if (strings[j] != null)
+                                        if (strings[j] != null) {
                                             indexOfMin = j;
+                                        }
                                     }
                                 }
                             }
@@ -290,10 +313,10 @@ public class FileSortImpl implements FileSort {
                 }
             }
             Utility.closeFiles(inputFiles);
-            Utility.deleteDirectory(new File("tmp"));
-            fileSecondSort(outFile, sortDateType, sortingDirection, outFile);
+            Utility.deleteDirectory(TMP);
+            fileSecondSort(outputFile, sortDateType, sortingDirection, outputFile);
         }
-        Utility.deleteDirectory(new File("tmp"));
+        Utility.deleteDirectory(TMP);
     }
 
     void writeLineI(FileWriter fw, Integer[] ints, List<BufferedReader> inputFiles, Integer index) throws IOException {
