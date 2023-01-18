@@ -4,7 +4,7 @@ import ru.sumenkov.msf.SortDataType;
 import ru.sumenkov.msf.SortDirection;
 
 /**
- *
+ * Проверка параметров запуска программы
  */
 public interface ArgsCheck {
     /**
