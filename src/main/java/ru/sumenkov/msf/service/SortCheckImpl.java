@@ -1,43 +1,26 @@
 package ru.sumenkov.msf.service;
 
 import ru.sumenkov.msf.SortDataType;
-import ru.sumenkov.msf.SortDirection;
 
 import java.io.*;
+import java.util.Comparator;
 
 public class SortCheckImpl implements SortCheck {
 
     @Override
-    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortDirection) {
+    public boolean isSorted(File file, SortDataType sortDateType, Comparator comparator) {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             try {
-                Comparable x = null;
-                Comparable y = null;
-                if (sortDateType == SortDataType.INTEGER) {
-                    x = Integer.parseInt(br.readLine());
-                    y = Integer.parseInt(br.readLine());
-                } else if (sortDateType == SortDataType.STRING) {
-                    x = br.readLine();
-                    y = br.readLine();
-                }
+                Comparable x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(br.readLine()) : br.readLine();
+                Comparable y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(br.readLine()) : br.readLine();
 
                 while (true) {
-                    if (sortDirection == SortDirection.ASC) {
-                        if (x != null && y != null) {
-                            if (x.compareTo(y) > 0) {
-                                return false;
-                            }
-                        } else {
+                    if (x != null && y != null) {
+                    if (comparator.compare(x, y) > 0) {
                             return false;
                         }
-                    } else if (sortDirection == SortDirection.DESC) {
-                        if (x != null && y != null) {
-                            if (x.compareTo(y) < 0) {
-                                return false;
-                            }
-                        } else {
-                            return false;
-                        }
+                    } else {
+                        return false;
                     }
 
                     x = y;
@@ -45,7 +28,7 @@ public class SortCheckImpl implements SortCheck {
 
                     if (tmp != null && sortDateType == SortDataType.INTEGER) {
                         y = Integer.parseInt(tmp);
-                    } else if (tmp != null && sortDateType == SortDataType.STRING) {
+                    } else if (tmp != null) {
                         y = tmp;
                     } else {
                         break;

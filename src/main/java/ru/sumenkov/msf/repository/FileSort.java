@@ -1,9 +1,9 @@
 package ru.sumenkov.msf.repository;
 
 import ru.sumenkov.msf.SortDataType;
-import ru.sumenkov.msf.SortDirection;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -14,8 +14,8 @@ public interface FileSort {
      * Запуск процесса чтения файлов
      * @param inFiles
      * @param sortDateType
-     * @param sortDirection
+     * @param comparator
      * @param outputFile
      */
-    void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile);
+    void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile);
 }

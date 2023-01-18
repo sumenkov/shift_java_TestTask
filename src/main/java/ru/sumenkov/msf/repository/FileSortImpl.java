@@ -1,7 +1,6 @@
 package ru.sumenkov.msf.repository;
 
 import ru.sumenkov.msf.SortDataType;
-import ru.sumenkov.msf.SortDirection;
 import ru.sumenkov.msf.service.*;
 
 import java.io.*;
@@ -10,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,38 +18,38 @@ public class FileSortImpl implements FileSort {
     public static final File TMP = new File("tmp/");
 
     @Override
-    public void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile) {
+    public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) {
 
             long freeMemory = Runtime.getRuntime().freeMemory() / 3;
             for (File inFile : inFiles) {
-                fileSort(inFile, sortDateType, sortDirection, freeMemory);
+                fileSort(inFile, sortDateType, comparator, freeMemory);
             }
-            fewFiles(sortDateType, sortDirection, outputFile);
+            fewFiles(sortDateType, comparator, outputFile);
     }
 
-    void fileSecondSort(File inFile, SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
+    void fileSecondSort(File inFile, SortDataType sortDateType, Comparator comparator, File outputFile) {
 
             long freeMemory = Runtime.getRuntime().freeMemory() / 15;
-            fileSort(inFile, sortDateType, sortingDirection, freeMemory);
-            fewFiles(sortDateType, sortingDirection, outputFile);
+            fileSort(inFile, sortDateType, comparator, freeMemory);
+            fewFiles(sortDateType, comparator, outputFile);
     }
 
-    void fileSort(File file, SortDataType sortDateType, SortDirection sortDirection, long freeMemory) {
+    void fileSort(File file, SortDataType sortDateType, Comparator comparator, long freeMemory) {
 
         SortCheck sortCheck = new SortCheckImpl();
 
-        if (sortCheck.isSorted(file, sortDateType, sortDirection)) {
+        if (sortCheck.isSorted(file, sortDateType, comparator)) {
             if (!file.renameTo(new File("tmp/" + file.getName() + ".sort"))) {
                 System.out.printf("Не удалось переименовать файл %s\n", file);
             }
         } else if (file.length() >= freeMemory) {
-            splitBigFile(file, sortDateType, sortDirection, freeMemory);
+            splitBigFile(file, sortDateType, comparator, freeMemory);
         } else {
-            smallFile(file, sortDateType, sortDirection);
+            smallFile(file, sortDateType, comparator);
         }
     }
 
-    <T extends Comparable<T>> void smallFile(File file, SortDataType sortDateType, SortDirection sortingDirection) {
+    <T extends Comparable<T>> void smallFile(File file, SortDataType sortDateType, Comparator comparator) {
 
         MergeSort mergeSort = new MergeSortImpl();
         FileRead fileRead = sortDateType == SortDataType.INTEGER ? new FileReadInteger() : new FileReadString();
@@ -57,7 +57,7 @@ public class FileSortImpl implements FileSort {
         try (FileWriter fw = fileWriter(file)) {
             List<T> array = fileRead.read(file);
 
-            mergeSort.mergeSort(array, sortingDirection);
+            mergeSort.mergeSort(array, comparator);
 
             for (Object obj : array) {
                 fw.append(String.valueOf(obj)).append("\n");
@@ -79,7 +79,7 @@ public class FileSortImpl implements FileSort {
         return fw;
     }
 
-    void splitBigFile(File file, SortDataType sortDateType, SortDirection sortingDirection, long freeMemory) {
+    void splitBigFile(File file, SortDataType sortDateType, Comparator comparator, long freeMemory) {
 
         int partCounter = 1;
         long fileLength = file.length();
@@ -100,7 +100,7 @@ public class FileSortImpl implements FileSort {
                     fw.close();
 
                     File newFile = new File("tmp/" + file.getName() + partCounter + ".tmp");
-                    smallFile(newFile, sortDateType, sortingDirection);
+                    smallFile(newFile, sortDateType, comparator);
 
                     if (!newFile.delete()) {
                         System.out.printf("Не удалось удалить файл %s\n", newFile.getName());
@@ -128,7 +128,7 @@ public class FileSortImpl implements FileSort {
         return rows;
     }
 
-    public void fewFiles(SortDataType sortDateType, SortDirection sortingDirection, File outputFile) {
+    public void fewFiles(SortDataType sortDateType, Comparator comparator, File outputFile) {
 
         List<String> filesNames = new ArrayList<>();
         for (File tmpFile : Objects.requireNonNull(Objects.requireNonNull(TMP).listFiles())) {
@@ -151,88 +151,49 @@ public class FileSortImpl implements FileSort {
                 }
                 System.out.printf("Файл с результатами сохранен как %s\n", outputFile.getName());
             } else {
-                fileSecondSort(new File(filesNames.get(0)), sortDateType, sortingDirection, outputFile);
+                fileSecondSort(new File(filesNames.get(0)), sortDateType, comparator, outputFile);
             }
         } else {
             File fileLeft = new File(filesNames.get(0));
             File fileRight = new File(filesNames.get(1));
-            File twoInOne = mergeTwoInOne(fileLeft, fileRight, sortDateType, sortingDirection);
+            File twoInOne = mergeTwoInOne(fileLeft, fileRight, sortDateType, comparator);
 
-            fileSecondSort(twoInOne, sortDateType, sortingDirection, outputFile);
+            fileSecondSort(twoInOne, sortDateType, comparator, outputFile);
 
         }
 
         Utility.deleteDirectory(TMP);
     }
 
-    File mergeTwoInOne(File fileLeft, File fileRight, SortDataType sortDateType, SortDirection sortingDirection) {
+    File mergeTwoInOne(File fileLeft, File fileRight, SortDataType sortDateType, Comparator comparator) {
         File twoInOne = new File("tmp/" + fileLeft.getName() + ".tio");
         try (BufferedReader left = new BufferedReader(new FileReader(fileLeft));
              BufferedReader right = new BufferedReader(new FileReader(fileRight))) {
             try (FileWriter fw = new FileWriter(twoInOne)) {
 
-                Comparable x = null;
-                Comparable y = null;
-                if (sortDateType == SortDataType.INTEGER) {
-                    x = Integer.parseInt(left.readLine());
-                    y = Integer.parseInt(right.readLine());
-                } else if (sortDateType == SortDataType.STRING) {
-                    x = left.readLine();
-                    y = right.readLine();
-                }
+                Comparable x = sortDateType == SortDataType.INTEGER
+                        ? Integer.parseInt(left.readLine()) : left.readLine();
+                Comparable y = sortDateType == SortDataType.INTEGER
+                        ? Integer.parseInt(right.readLine()) : right.readLine();
 
                 while (true) {
-                    if (sortingDirection == SortDirection.ASC) {
-                        if (x != null && y != null) {
-                            if (x.compareTo(y) <= 0) {
-                                x = readXY(fw, x, left, sortDateType);
-                            } else {
-                                y = readXY(fw, y, right, sortDateType);
-                            }
+                    if (x != null && y != null) {
+                        if (comparator.compare(x, y) <= 0) {
+                            x = readXY(fw, x, left, sortDateType);
                         } else {
-                            if (x == null && y == null) {
-                                break;
-                            } else if (x == null) {
-                                while (true) {
-                                    y = readXY(fw, y, right, sortDateType);
-                                    if (y == null) {
-                                        break;
-                                    }
-                                }
-                            } else {
-                                while (true) {
-                                    x = readXY(fw, x, left, sortDateType);
-                                    if (x == null) {
-                                        break;
-                                    }
-                                }
-                            }
+                            y = readXY(fw, y, right, sortDateType);
                         }
-                    } else if (sortingDirection == SortDirection.DESC) {
-                        if (x != null && y != null) {
-                            if (x.compareTo(y) >= 0) {
-                                x = readXY(fw, x, left, sortDateType);
-                            } else {
+                    } else {
+                        if (x == null && y == null) {
+                            break;
+                        } else if (x == null) {
+                            do {
                                 y = readXY(fw, y, right, sortDateType);
-                            }
+                            } while (y != null);
                         } else {
-                            if (x == null && y == null) {
-                                break;
-                            } else if (x == null) {
-                                while (true) {
-                                    y = readXY(fw, y, right, sortDateType);
-                                    if (y == null) {
-                                        break;
-                                    }
-                                }
-                            } else {
-                                while (true) {
-                                    x = readXY(fw, x, left, sortDateType);
-                                    if (x == null) {
-                                        break;
-                                    }
-                                }
-                            }
+                            do {
+                                x = readXY(fw, x, left, sortDateType);
+                            } while (x != null);
                         }
                     }
                 }
