@@ -28,10 +28,10 @@ public class Utility {
         }
     }
 
-    public static boolean allNull(Object[] ints) {
+    public static boolean allNull(Object[] array) {
         boolean b = false;
 
-        for (Object i : ints) {
+        for (Object i : array) {
             if (i != null) {
                 b = true;
                 break;

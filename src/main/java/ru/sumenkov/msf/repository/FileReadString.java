@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileReadString implements FileRead {
+public class FileReadString implements FileRead<String> {
     @Override
     public List<String> read(File file) {
         List<String> list = new ArrayList<>();

@@ -17,10 +17,7 @@ public class MergeSortImpl implements MergeSort {
 
         int mid = num / 2;
         List<T> left = new ArrayList<>(array.subList(0, mid));
-        List<T> right = new ArrayList<>(array.subList(num - mid, num));
-
-//        System.arraycopy(array, 0, left, 0, mid);
-//        System.arraycopy(array, mid, right, 0, num - mid);
+        List<T> right = new ArrayList<>(array.subList(mid, num));
 
         mergeSort(left, sortingDirection);
         mergeSort(right, sortingDirection);
@@ -37,30 +34,24 @@ public class MergeSortImpl implements MergeSort {
             if (sortingDirection == SortDirection.ASC) {
                 if (left.get(i).compareTo(right.get(j)) <= 0) {
                     array.set(k++, left.get(i++));
-//                    array[k++] = left[i++];
                 } else {
                     array.set(k++, right.get(j++));
-//                    array[k++] = right[j++];
                 }
             } else if (sortingDirection == SortDirection.DESC) {
                 if (left.get(i).compareTo(right.get(j)) >= 0) {
                     array.set(k++, left.get(i++));
-//                    array[k++] = left[i++];
                 } else {
                     array.set(k++, right.get(j++));
-//                    array[k++] = right[j++];
                 }
             }
         }
 
         while (i < leftLength) {
             array.set(k++, left.get(i++));
-//            array[k++] = left[i++];
         }
 
         while (j < rightLength) {
             array.set(k++, right.get(j++));
-//            array[k++] = right[j++];
         }
     }
 }
