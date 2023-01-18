@@ -7,5 +7,5 @@ import java.io.File;
 import java.util.List;
 
 public interface FileSort {
-    void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortingDirection, File outputFile);
+    void runSort(List<File> inFiles, SortDataType sortDateType, SortDirection sortDirection, File outputFile);
 }

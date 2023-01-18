@@ -28,10 +28,13 @@ public class ArgsCheckImpl implements ArgsCheck {
             }
         }
 
-        boolean sortTypeInt = Arrays.binarySearch(args, "-i") >= 0;
-        boolean sortTypeStr = Arrays.binarySearch(args, "-s") >= 0;
-        boolean sortDirectionAsc = Arrays.binarySearch(args, "-a") >= 0;
-        boolean sortDirectionDesc = Arrays.binarySearch(args, "-d") >= 0;
+        String[] tmpArgs = new String[args.length];
+        System.arraycopy(args, 0, tmpArgs, 0, args.length);
+        Arrays.sort(tmpArgs);
+        boolean sortTypeInt = Arrays.binarySearch(tmpArgs, "-i") >= 0;
+        boolean sortTypeStr = Arrays.binarySearch(tmpArgs, "-s") >= 0;
+        boolean sortDirectionAsc = Arrays.binarySearch(tmpArgs, "-a") >= 0;
+        boolean sortDirectionDesc = Arrays.binarySearch(tmpArgs, "-d") >= 0;
 
         int lengthArgs = this.args.length;
 

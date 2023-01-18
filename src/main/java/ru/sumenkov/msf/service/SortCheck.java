@@ -6,5 +6,5 @@ import ru.sumenkov.msf.SortDirection;
 import java.io.File;
 
 public interface SortCheck {
-    boolean isSorted(File file, SortDataType sortDateType, SortDirection sortingDirection);
+    boolean isSorted(File file, SortDataType sortDateType, SortDirection sortDirection);
 }

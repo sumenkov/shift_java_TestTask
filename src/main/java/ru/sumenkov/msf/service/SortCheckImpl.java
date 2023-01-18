@@ -8,8 +8,8 @@ import java.io.*;
 public class SortCheckImpl implements SortCheck {
 
     @Override
-    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortingDirection) {
-        try (BufferedReader br = new BufferedReader(new FileReader(file.getName()))) {
+    public boolean isSorted(File file, SortDataType sortDateType, SortDirection sortDirection) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             try {
                 Comparable x = null;
                 Comparable y = null;
@@ -22,7 +22,7 @@ public class SortCheckImpl implements SortCheck {
                 }
 
                 while (true) {
-                    if (sortingDirection == SortDirection.ASC) {
+                    if (sortDirection == SortDirection.ASC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) > 0) {
                                 return false;
@@ -30,7 +30,7 @@ public class SortCheckImpl implements SortCheck {
                         } else {
                             return false;
                         }
-                    } else if (sortingDirection == SortDirection.DESC) {
+                    } else if (sortDirection == SortDirection.DESC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) < 0) {
                                 return false;
@@ -56,6 +56,7 @@ public class SortCheckImpl implements SortCheck {
             }
         } catch (IOException e) {
             System.out.printf("Ошибка чтения файла %s\n", file.getName());
+            return false;
         }
         return true;
     }
