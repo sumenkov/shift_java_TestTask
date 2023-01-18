@@ -1,14 +1,13 @@
 package ru.sumenkov.msf.service;
 
-import ru.sumenkov.msf.SortDirection;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class MergeSortImpl implements MergeSort {
 
     @Override
-    public <T extends Comparable<T>> void mergeSort(List<T> array, SortDirection sortingDirection) {
+    public <T extends Comparable<T>> void mergeSort(List<T> array, Comparator comparator) {
 
         int num = array.size();
         if (num < 2) {
@@ -19,30 +18,22 @@ public class MergeSortImpl implements MergeSort {
         List<T> left = new ArrayList<>(array.subList(0, mid));
         List<T> right = new ArrayList<>(array.subList(mid, num));
 
-        mergeSort(left, sortingDirection);
-        mergeSort(right, sortingDirection);
+        mergeSort(left, comparator);
+        mergeSort(right, comparator);
 
-        merge(array, left, right, sortingDirection);
+        merge(array, left, right, comparator);
     }
 
-    private <T extends Comparable<T>> void merge(List<T> array, List<T> left, List<T> right, SortDirection sortingDirection) {
+    private <T extends Comparable<T>> void merge(List<T> array, List<T> left, List<T> right, Comparator<T> comparator) {
         int k = 0, i = 0, j = 0;
         int leftLength = left.size();
         int rightLength = right.size();
 
         while (i < leftLength && j < rightLength) {
-            if (sortingDirection == SortDirection.ASC) {
-                if (left.get(i).compareTo(right.get(j)) <= 0) {
+            if (comparator.compare(left.get(i), right.get(j)) <= 0) {
                     array.set(k++, left.get(i++));
-                } else {
-                    array.set(k++, right.get(j++));
-                }
-            } else if (sortingDirection == SortDirection.DESC) {
-                if (left.get(i).compareTo(right.get(j)) >= 0) {
-                    array.set(k++, left.get(i++));
-                } else {
-                    array.set(k++, right.get(j++));
-                }
+            } else {
+                array.set(k++, right.get(j++));
             }
         }
 
