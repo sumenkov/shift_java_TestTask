@@ -20,7 +20,7 @@ public class FileSortImpl implements FileSort {
     @Override
     public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) {
 
-            long freeMemory = Runtime.getRuntime().freeMemory() / 3;
+            long freeMemory = Runtime.getRuntime().freeMemory() / 4;
             for (File inFile : inFiles) {
                 fileSort(inFile, sortDateType, comparator, freeMemory);
             }
@@ -29,7 +29,7 @@ public class FileSortImpl implements FileSort {
 
     void fileSecondSort(File inFile, SortDataType sortDateType, Comparator comparator, File outputFile) {
 
-            long freeMemory = Runtime.getRuntime().freeMemory() / 15;
+            long freeMemory = Runtime.getRuntime().freeMemory() / 16;
             fileSort(inFile, sortDateType, comparator, freeMemory);
             fewFiles(sortDateType, comparator, outputFile);
     }
