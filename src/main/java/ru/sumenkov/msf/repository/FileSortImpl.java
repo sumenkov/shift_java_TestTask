@@ -62,8 +62,9 @@ public class FileSortImpl implements FileSort {
             List<T> array = fileRead.read(file);
 
             mergeSort.mergeSort(array, sortingDirection);
-            for (Object num : array) {
-                fw.append(String.valueOf(num)).append("\n");
+
+            for (Object obj : array) {
+                fw.append(String.valueOf(obj)).append("\n");
             }
 
         } catch (IOException e) {
@@ -369,33 +370,58 @@ public class FileSortImpl implements FileSort {
                 list.add(left);
                 list.add(right);
 
-                Comparable x = sortDateType == SortDataType.INTEGER ?
-                        Integer.parseInt(list.get(0).readLine()) : list.get(0).readLine();
-                Comparable y = sortDateType == SortDataType.STRING ?
-                        Integer.parseInt(list.get(1).readLine()) : list.get(1).readLine();
+                Comparable x = null;
+                Comparable y = null;
+                if (sortDateType == SortDataType.INTEGER) {
+                    x = Integer.parseInt(list.get(0).readLine());
+                    y = Integer.parseInt(list.get(1).readLine());
+                } else if (sortDateType == SortDataType.STRING) {
+                    x = list.get(0).readLine();
+                    y = list.get(1).readLine();
+                }
 
                 while (true) {
                     if (sortingDirection == SortDirection.ASC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) <= 0) {
-                                xWriteAndRead(fw, x, sortDateType, list);
+                                x = xWriteAndRead(fw, x, sortDateType, list);
                             } else {
-                                yWriteAndRead(fw, y, sortDateType, list);
+                                y = yWriteAndRead(fw, y, sortDateType, list);
                             }
                         } else {
-                            if (!xOryNull(fw, x, y, sortDateType, list)) {
+                            if (x == null && y == null) {
+                                break;
+                            } else if (x == null) {
+                                while (y != null) {
+                                    y = yWriteAndRead(fw, y, sortDateType, list);
+                                }
+                                break;
+                            } else {
+                                while (x != null) {
+                                    x = xWriteAndRead(fw, x, sortDateType, list);
+                                }
                                 break;
                             }
                         }
                     } else if (sortingDirection == SortDirection.DESC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) >= 0) {
-                                xWriteAndRead(fw, x, sortDateType, list);
+                                x = xWriteAndRead(fw, x, sortDateType, list);
                             } else {
-                                yWriteAndRead(fw, y, sortDateType, list);
+                                y = yWriteAndRead(fw, y, sortDateType, list);
                             }
                         } else {
-                            if (!xOryNull(fw, x, y, sortDateType, list)) {
+                            if (x == null && y == null) {
+                                break;
+                            } else if (x == null) {
+                                while (y != null) {
+                                    y = yWriteAndRead(fw, y, sortDateType, list);
+                                }
+                                break;
+                            } else {
+                                while (x != null) {
+                                    x = xWriteAndRead(fw, x, sortDateType, list);
+                                }
                                 break;
                             }
                         }
@@ -413,42 +439,44 @@ public class FileSortImpl implements FileSort {
         }
     }
 
-    boolean xWriteAndRead(FileWriter fw, Comparable x, SortDataType sortDateType, List<BufferedReader> list)
+    Comparable xWriteAndRead(FileWriter fw, Comparable x, SortDataType sortDateType, List<BufferedReader> list)
             throws IOException {
         fw.append(x.toString()).append("\n");
-        x = sortDateType == SortDataType.INTEGER ?
-                Integer.parseInt(list.get(0).readLine()) : list.get(0).readLine();
-        return x != null;
+        String tmp = list.get(0).readLine();
+        if (tmp != null) {
+            x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
+            return x;
+        }
+        return null;
     }
 
-    boolean yWriteAndRead(FileWriter fw, Comparable y, SortDataType sortDateType, List<BufferedReader> list)
+    Comparable yWriteAndRead(FileWriter fw, Comparable y, SortDataType sortDateType, List<BufferedReader> list)
             throws IOException {
         fw.append(y.toString()).append("\n");
-        y = sortDateType == SortDataType.INTEGER ?
-                Integer.parseInt(list.get(0).readLine()) : list.get(0).readLine();
-        return y != null;
+        String tmp = list.get(0).readLine();
+        if (tmp != null) {
+            y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
+            return y;
+        }
+        return null;
     }
 
-    boolean xOryNull(FileWriter fw, Comparable x, Comparable y, SortDataType sortDateType, List<BufferedReader> list)
-            throws IOException {
-        if (x == null && y == null) {
-            return false;
-        } else if (x == null) {
-            while (true) {
-                if (!yWriteAndRead(fw, y, sortDateType, list)) {
-                    break;
-                }
-            }
-            return false;
-        } else {
-            while (true) {
-                if (!xWriteAndRead(fw, x, sortDateType, list)) {
-                    break;
-                }
-            }
-            return false;
-        }
-    }
+//    boolean xOryNull(FileWriter fw, Comparable x, Comparable y, SortDataType sortDateType, List<BufferedReader> list)
+//            throws IOException {
+//        if (x == null && y == null) {
+//            return false;
+//        } else if (x == null) {
+//            while (y != null) {
+//                y = yWriteAndRead(fw, y, sortDateType, list));
+//            }
+//            return false;
+//        } else {
+//            while (x != null) {
+//                x = xWriteAndRead(fw, x, sortDateType, list);
+//            }
+//            return false;
+//        }
+//    }
 //
 //    void writeLineI(FileWriter fw, Integer[] ints, List<BufferedReader> inputFiles, Integer index) throws IOException {
 //
