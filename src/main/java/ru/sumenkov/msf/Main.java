@@ -14,8 +14,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        long startTime = System.nanoTime();
-
         ArgsCheck argsCheck = new ArgsCheckImpl(args);
         if (argsCheck.check()) {
             SortDataType sortDataType = argsCheck.getSortDataType();
@@ -33,6 +31,5 @@ public class Main {
                 }
             }
         }
-        System.out.println((System.nanoTime() - startTime) / 1000000000 + " сек");
     }
 }
