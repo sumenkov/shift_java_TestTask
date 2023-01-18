@@ -185,44 +185,24 @@ public class FileSortImpl implements FileSort {
                     if (sortingDirection == SortDirection.ASC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) <= 0) {
-                                fw.append(x.toString()).append("\n");
-                                String tmp = left.readLine();
-                                if (tmp != null) {
-                                    x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                } else {
-                                    x = null;
-                                }
+                                x = readXY(fw, x, left, sortDateType);
                             } else {
-                                fw.append(y.toString()).append("\n");
-                                String tmp = right.readLine();
-                                if (tmp != null) {
-                                    y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                } else {
-                                    y = null;
-                                }
+                                y = readXY(fw, y, right, sortDateType);
                             }
                         } else {
                             if (x == null && y == null) {
                                 break;
                             } else if (x == null) {
                                 while (true) {
-                                    fw.append(y.toString()).append("\n");
-                                    String tmp = right.readLine();
-                                    if (tmp != null) {
-                                        y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                    } else {
-                                        y = null;
+                                    y = readXY(fw, y, right, sortDateType);
+                                    if (y == null) {
                                         break;
                                     }
                                 }
                             } else {
                                 while (true) {
-                                    fw.append(x.toString()).append("\n");
-                                    String tmp = left.readLine();
-                                    if (tmp != null) {
-                                        x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                    } else {
-                                        x = null;
+                                    x = readXY(fw, x, left, sortDateType);
+                                    if (x == null) {
                                         break;
                                     }
                                 }
@@ -231,44 +211,24 @@ public class FileSortImpl implements FileSort {
                     } else if (sortingDirection == SortDirection.DESC) {
                         if (x != null && y != null) {
                             if (x.compareTo(y) >= 0) {
-                                fw.append(x.toString()).append("\n");
-                                String tmp = left.readLine();
-                                if (tmp != null) {
-                                    x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                } else {
-                                    x = null;
-                                }
+                                x = readXY(fw, x, left, sortDateType);
                             } else {
-                                fw.append(y.toString()).append("\n");
-                                String tmp = right.readLine();
-                                if (tmp != null) {
-                                    y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                } else {
-                                    y = null;
-                                }
+                                y = readXY(fw, y, right, sortDateType);
                             }
                         } else {
                             if (x == null && y == null) {
                                 break;
                             } else if (x == null) {
                                 while (true) {
-                                    fw.append(y.toString()).append("\n");
-                                    String tmp = right.readLine();
-                                    if (tmp != null) {
-                                        y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                    } else {
-                                        y = null;
+                                    y = readXY(fw, y, right, sortDateType);
+                                    if (y == null) {
                                         break;
                                     }
                                 }
                             } else {
                                 while (true) {
-                                    fw.append(x.toString()).append("\n");
-                                    String tmp = left.readLine();
-                                    if (tmp != null) {
-                                        x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp;
-                                    } else {
-                                        x = null;
+                                    x = readXY(fw, x, left, sortDateType);
+                                    if (x == null) {
                                         break;
                                     }
                                 }
@@ -288,5 +248,11 @@ public class FileSortImpl implements FileSort {
             System.out.printf("Не удалось удалить файл %s\n", fileRight.getName());
         }
         return twoInOne;
+    }
+
+    Comparable readXY(FileWriter fw, Comparable value, BufferedReader br, SortDataType sortDateType) throws IOException {
+        fw.append(value.toString()).append("\n");
+        String tmp = br.readLine();
+        return tmp != null ? (sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp) : null;
     }
 }
