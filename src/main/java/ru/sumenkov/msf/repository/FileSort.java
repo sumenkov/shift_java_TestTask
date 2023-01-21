@@ -3,6 +3,7 @@ package ru.sumenkov.msf.repository;
 import ru.sumenkov.msf.SortDataType;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -17,5 +18,5 @@ public interface FileSort {
      * @param comparator
      * @param outputFile
      */
-    void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile);
+    void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) throws IOException;
 }

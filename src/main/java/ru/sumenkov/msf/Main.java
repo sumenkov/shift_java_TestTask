@@ -1,13 +1,11 @@
 package ru.sumenkov.msf;
 
-import ru.sumenkov.msf.repository.FileCheck;
-import ru.sumenkov.msf.repository.FileCheckImpl;
-import ru.sumenkov.msf.repository.FileSort;
-import ru.sumenkov.msf.repository.FileSortImpl;
+import ru.sumenkov.msf.repository.*;
 import ru.sumenkov.msf.service.ArgsCheck;
 import ru.sumenkov.msf.service.ArgsCheckImpl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,8 +27,12 @@ public class Main {
             if (fileCheck.outputFile(outputFileName)) {
                 List<File> listFile = fileCheck.listFile(args, indexInputFile);
                 if (listFile.size() != 0) {
-                    FileSort fileSort = new FileSortImpl();
-                    fileSort.runSort(listFile, sortDataType, comparator, outputFileName);
+                    FileSort fileSort = new NewFileSort();
+                    try {
+                        fileSort.runSort(listFile, sortDataType, comparator, outputFileName);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
