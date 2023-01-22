@@ -5,7 +5,6 @@ import ru.sumenkov.msf.service.ArgsCheck;
 import ru.sumenkov.msf.service.ArgsCheckImpl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,11 +25,7 @@ public class Main {
                 List<File> listFile = fileCheck.listFile(args, indexInputFile);
                 if (listFile.size() != 0) {
                     FileSort fileSort = new FileSortImpl();
-                    try {
-                        fileSort.runSort(listFile, sortDataType, comparator, outputFileName);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    fileSort.runSort(listFile, sortDataType, comparator, outputFileName);
                 }
             }
         }

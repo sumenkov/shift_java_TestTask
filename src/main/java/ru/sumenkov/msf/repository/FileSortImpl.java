@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class FileSortImpl implements FileSort{
     @Override
-    public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) throws IOException {
+    public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) {
 
         SortCheck sortCheck = new SortCheckImpl();
         for (File file : inFiles) {
@@ -29,7 +29,11 @@ public class FileSortImpl implements FileSort{
                 MergeSort mergeSort = new MergeSortImpl();
                 for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
                     if (tmpFile.getName().contains(".ns")) {
-                        mergeSort.mergeSort(tmpFile, comparator);
+                        try {
+                            mergeSort.mergeSort(tmpFile, comparator);
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                 }
             }
