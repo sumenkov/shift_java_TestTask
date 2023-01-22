@@ -1,5 +1,8 @@
 package ru.sumenkov.msf.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -14,4 +17,5 @@ public interface MergeSort {
      * @param <T>
      */
     <T extends Comparable<T>> void mergeSort(List<T> array, Comparator comparator);
+    <T extends Comparable<T>> void mergeSort(File file, Comparator comparator) throws IOException;
 }

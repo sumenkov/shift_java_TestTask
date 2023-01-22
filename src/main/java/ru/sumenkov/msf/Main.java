@@ -1,9 +1,6 @@
 package ru.sumenkov.msf;
 
-import ru.sumenkov.msf.repository.FileCheck;
-import ru.sumenkov.msf.repository.FileCheckImpl;
-import ru.sumenkov.msf.repository.FileSort;
-import ru.sumenkov.msf.repository.FileSortImpl;
+import ru.sumenkov.msf.repository.*;
 import ru.sumenkov.msf.service.ArgsCheck;
 import ru.sumenkov.msf.service.ArgsCheckImpl;
 
@@ -12,9 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Main {
-
     public static void main(String[] args) {
-
         ArgsCheck argsCheck = new ArgsCheckImpl(args);
         if (argsCheck.check()) {
             SortDataType sortDataType = argsCheck.getSortDataType();

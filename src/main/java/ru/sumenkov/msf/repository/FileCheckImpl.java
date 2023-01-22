@@ -28,8 +28,8 @@ public class FileCheckImpl implements FileCheck {
             }
         }
 
-        if (!FileSortImpl.TMP.isDirectory()) {
-            if (!FileSortImpl.TMP.mkdir()) {
+        if (!FileSort.TMP.isDirectory()) {
+            if (!FileSort.TMP.mkdir()) {
                 System.out.println("Не удалось создать директорию для временных файлов.");
                 return false;
             }
