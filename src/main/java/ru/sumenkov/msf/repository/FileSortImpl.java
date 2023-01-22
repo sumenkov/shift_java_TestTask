@@ -17,7 +17,7 @@ public class FileSortImpl implements FileSort{
 
         SortCheck sortCheck = new SortCheckImpl();
         for (File file : inFiles) {
-            if (sortCheck.isSorted(file, sortDateType, comparator)) {
+            if (sortCheck.isSorted(file, comparator)) {
                 try {
                     Files.copy(Paths.get(file.getPath()), Paths.get("tmp/" + file.getName().split("\\.")[0] + ".s"));
                 } catch (IOException e) {
