@@ -61,7 +61,7 @@ public class MergeSortImpl implements MergeSort {
         BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(
                         Files.newOutputStream(
-                                Paths.get(file.getPath().split("\\.")[0] + ".s")),
+                                Paths.get("tmp/" + file.getName().split("\\.")[0] + ".s")),
                         FileSort.ENCODING));
         for (Comparable<T> value: array) {
             writer.write(value.toString());
