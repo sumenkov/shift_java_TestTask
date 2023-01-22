@@ -12,11 +12,15 @@ import java.util.List;
  */
 public interface FileSort {
     /**
+     * Кодировка чтения файлов
+     */
+    String ENCODING = "UTF-8";
+    /**
+     * Директория для хранения временных файлов
+     */
+    File TMP = new File("tmp/");
+    /**
      * Запуск процесса чтения файлов
-     * @param inFiles
-     * @param sortDateType
-     * @param comparator
-     * @param outputFile
      */
     void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) throws IOException;
 }

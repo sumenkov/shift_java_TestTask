@@ -5,122 +5,88 @@ import ru.sumenkov.msf.service.*;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class FileSortImpl implements FileSort {
-
-    public static final File TMP = new File("tmp/");
-
+public class FileSortImpl implements FileSort{
     @Override
-    public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) {
-
-//            long freeMemory = Runtime.getRuntime().freeMemory();
-            for (File inFile : inFiles) {
-                fileSort(inFile, sortDateType, comparator);
-            }
-            fewFiles(sortDateType, comparator, outputFile);
-    }
-
-    void nextFileSort(File inFile, SortDataType sortDateType, Comparator comparator, File outputFile) {
-//            long freeMemory = Runtime.getRuntime().freeMemory();
-            fileSort(inFile, sortDateType, comparator);
-            fewFiles(sortDateType, comparator, outputFile);
-    }
-
-    void fileSort(File file, SortDataType sortDateType, Comparator comparator) {
+    public void runSort(List<File> inFiles, SortDataType sortDateType, Comparator comparator, File outputFile) throws IOException {
 
         SortCheck sortCheck = new SortCheckImpl();
+        for (File file : inFiles) {
+            if (sortCheck.isSorted(file, sortDateType, comparator)) {
+                try {
+                    Files.copy(Paths.get(file.getPath()), Paths.get("tmp/" + file.getName().split("\\.")[0] + ".s"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (numberOfLines(file) > Runtime.getRuntime().freeMemory() / 100) {
+                splitFile(file, sortDateType);
 
-        if (sortCheck.isSorted(file, sortDateType, comparator)) {
-            if (!file.renameTo(new File("tmp/" + file.getName().split("\\.")[0] + ".sort"))) {
-                System.out.printf("Не удалось переименовать файл %s\n", file);
-            }
-        } else {
-            if (!file.renameTo(new File("tmp/" + file.getName().split("\\.")[0] + ".ns"))) {
-                System.out.printf("Не удалось переименовать файл %s\n", file);
+                MergeSort mergeSort = new MergeSortImpl();
+                for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
+                    if (tmpFile.getName().contains(".ns")) {
+                        mergeSort.mergeSort(tmpFile, comparator);
+                    }
+                }
             }
         }
-//        } else if (file.length() >= freeMemory) {
-//            splitBigFile(file, sortDateType, comparator, freeMemory);
-//        } else {
-//            smallFile(file, sortDateType, comparator);
-//        }
+        mergeFile(sortDateType, comparator, outputFile);
     }
 
-//    <T extends Comparable<T>> void smallFile(File file, SortDataType sortDateType, Comparator comparator) {
-//
-//        MergeSort mergeSort = new MergeSortImpl();
-////        FileRead fileRead = sortDateType == SortDataType.INTEGER ? new FileReadInteger() : new FileReadString();
-//        FileRead fileRead = new FileReadString();
-//
-//        try (FileWriter fw = fileWriter(file)) {
-////            List<T> array = fileRead.read(file);
-//            с
-//
-////            mergeSort.mergeSort(array, comparator);
-//
-////            for (Object obj : array) {
-////                fw.append(String.valueOf(obj)).append("\n");
-////            }
-//
-//            fw.flush();
-//        } catch (IOException e) {
-//            System.out.printf("Ошибка во время сортировки файла %s\n", file.getName());
-//        }
-//    }
+    void splitFile(File file, SortDataType sortDateType) {
+        long newLinesFile = Runtime.getRuntime().freeMemory() / 100;
+        BufferedReader reader;
+        BufferedWriter writer;
 
-//    FileWriter fileWriter(File file) throws IOException {
-//        FileWriter fw;
-//        if (file.getName().split("/")[0].equals("tmp")) {
-//            fw = new FileWriter(file.getName() + ".s");
-//        } else {
-//            fw = new FileWriter("tmp/" + file.getName() + ".s");
-//        }
-//        return fw;
-//    }
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(
+                            Files.newInputStream(
+                                    Paths.get(file.getName())),
+                            FileSort.ENCODING));
+            String newFileName = "tmp/" + file.getName().split("\\.")[0] + 0 + ".ns";
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(
+                            Files.newOutputStream(
+                                    Paths.get(newFileName)),
+                            FileSort.ENCODING));
+            long count = 0;
+            int i = 1;
+            for (String line; (line = reader.readLine()) != null;) {
+                if (checkLine(line, sortDateType)) {
+                    if (count++ == newLinesFile) {
+                        writer.close();
+                        newFileName = "tmp/" + file.getName().split("\\.")[0] + i + ".ns";
+                        writer = new BufferedWriter(
+                                new OutputStreamWriter(
+                                        Files.newOutputStream(
+                                                Paths.get(newFileName)),
+                                        FileSort.ENCODING));
+                        count = 0;
+                        i++;
+                    }
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+            writer.close();
+            reader.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
-//    void splitBigFile(File file, SortDataType sortDateType, Comparator comparator, long freeMemory) {
-//
-//        int partCounter = 1;
-//        long fileLength = file.length();
-//        long maxPartCounter = fileLength % freeMemory == 0 ?
-//                fileLength / freeMemory : fileLength / freeMemory + 1;
-//        long allRows = numberOfLines(file);
-//        long maxRows = allRows / maxPartCounter;
-//
-//        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-//            FileWriter fw = new FileWriter("tmp/" + file.getName() + partCounter);
-//
-//            String row;
-//            int rownum = 1;
-//            while ((row = br.readLine()) != null) {
-//                rownum++;
-//                fw.append(row).append("\n");
-//                if ((rownum / maxRows) > (partCounter - 1)) {
-//                    fw.close();
-//
-//                    File newFile = new File("tmp/" + file.getName() + partCounter);
-//                    smallFile(newFile, sortDateType, comparator);
-//
-//                    if (!newFile.delete()) {
-//                        System.out.printf("Не удалось удалить файл %s\n", newFile.getName());
-//                    }
-//
-//                    partCounter++;
-//                    fw = new FileWriter("tmp/" + file.getName() + partCounter);
-//                }
-//            }
-//            fw.close();
-//        } catch (IOException e) {
-//            System.out.printf("Ошибка чтения файла %s\n", file.getName());
-//        }
-//    }
+    private boolean checkLine(String line, SortDataType sortDateType) {
+        if (sortDateType == SortDataType.INTEGER) {
+            return Utility.isNumeric(line);
+        } else {
+            return !line.contains(" ") && !line.equals("");
+        }
+    }
 
     private long numberOfLines(File file) {
         long rows = 0;
@@ -134,120 +100,61 @@ public class FileSortImpl implements FileSort {
         return rows;
     }
 
-    public void fewFiles(SortDataType sortDateType, Comparator comparator, File outputFile) {
-
-        List<String> filesNames = new ArrayList<>();
-        for (File tmpFile : Objects.requireNonNull(Objects.requireNonNull(TMP).listFiles())) {
-            if (tmpFile.length() != 0) {
-                filesNames.add("tmp/" + tmpFile.getName());
-            }
+    void mergeFile(SortDataType sortDateType, Comparator comparator, File outputFile) {
+        List<String> filesName = new ArrayList<>();
+        for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
+            filesName.add("tmp/" + tmpFile.getName());
         }
-        if (filesNames.size() == 0) {
+        if (filesName.size() == 0) {
             System.out.println("Нет данных для сортировки.");
             Utility.deleteDirectory(TMP);
-            return;
-        } else if (filesNames.size() == 1) {
-            String fileName = filesNames.get(0);
-            if (fileName.contains(".sort")) {
-                Path oldFile = new File(fileName).toPath();
-                Path newFile = Paths.get(outputFile.getName());
-                try {
-                    Files.copy(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    System.out.printf("Не удалось скопировать файл %s или записать новый файл %s\n", oldFile, newFile);
-                }
-                System.out.printf("Файл с результатами сохранен как %s\n", outputFile.getName());
-            } else {
-                // sorting and next
-//                String newFile = "newFile";
-                long maxLines = numberOfLines(new File(fileName));
-//                System.out.println("maxLines: " + maxLines);
-                long newLines = maxLines != 0 ? maxLines / 2 : 1;
-                if (maxLines % newLines != 0) {
-                    newLines++;
-                }
-//                System.out.println("newLines: " + newLines);
-                BufferedReader reader = null;
-                BufferedWriter writer = null;
-                try {
-                    reader = new BufferedReader(
-                            new InputStreamReader(
-                                    Files.newInputStream(
-                                            Paths.get(fileName)),
-                                    FileRead.ENCODING));
+        } else {
+            while (filesName.size() > 1) {
+                int size = filesName.size() % 2 == 0 ? filesName.size() : filesName.size() - 1;
+                List<Thread> myThreads = new ArrayList<>();
 
-                    String newFileName = fileName.split("\\.")[0] + 0;
-                    writer = new BufferedWriter(
-                            new OutputStreamWriter(
-                                    Files.newOutputStream(
-                                            Paths.get(newFileName)),
-                                    FileRead.ENCODING));
-                    long count = 0;
-                    int i = 1;
-                    for (String line; (line = reader.readLine()) != null;) {
-                        if (count++ == newLines) {
-                            writer.close();
-                            fileSort(new File(newFileName), sortDateType, comparator);
+                for (int i = 0; i < size; i++) {
+                    File fileLeft = new File(filesName.get(i));
+                    File fileRight = new File(filesName.get(i + 1));
 
-                            newFileName = fileName.split("\\.")[0] + i;
-                            writer = new BufferedWriter(
-                                    new OutputStreamWriter(
-                                            Files.newOutputStream(
-                                                    Paths.get(newFileName)),
-                                            FileRead.ENCODING));
-                            count = 0;
-                            i++;
-                        }
-                        writer.write(line);
-                        writer.newLine();
-                    }
-                    fileSort(new File(newFileName), sortDateType, comparator);
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                } finally {
+                    Thread myThread = new Thread(() -> mergeAllInOne(fileLeft, fileRight, sortDateType, comparator));
+                    myThread.start();
+                    myThreads.add(myThread);
+                    i++;
+                }
+
+                for (Thread thread: myThreads) {
                     try {
-                        if (writer != null) {
-                            writer.close();
-                        }
-                        if (reader != null) {
-                            reader.close();
-                        }
-                    } catch (IOException e) {
+                        thread.join();
+                    } catch (InterruptedException e) {
                         System.out.println(e.getMessage());
                     }
                 }
 
-                if (!new File(fileName).delete()) {
-                    System.out.printf("Не удалось удалить файл %s\n", fileName);
+                filesName = new ArrayList<>();
+                for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
+                    filesName.add("tmp/" + tmpFile.getName());
                 }
-
-                fewFiles(sortDateType, comparator, outputFile);
-//                fileSecondSort(new File(newFile), sortDateType, comparator, outputFile);
             }
-        } else {
-            File fileLeft = new File(filesNames.get(0));
-            File fileRight = new File(filesNames.get(1));
-            File twoInOne = mergeTwoInOne(fileLeft, fileRight, sortDateType, comparator);
 
-            nextFileSort(twoInOne, sortDateType, comparator, outputFile);
+            if (!new File(filesName.get(0)).renameTo(outputFile)) {
+                System.out.printf("Не удалось переименовать файл %s\n", filesName.get(0));
+            }
+            System.out.printf("Файл с результатами сохранен как %s\n", outputFile.getName());
 
+            Utility.deleteDirectory(TMP);
         }
-
-        Utility.deleteDirectory(TMP);
     }
 
-    File mergeTwoInOne(File fileLeft, File fileRight, SortDataType sortDateType, Comparator comparator) {
-        File twoInOne = new File("tmp/" + fileLeft.getName().split("\\.")[0] + ".m");
-//        try (BufferedReader left = new BufferedReader(new FileReader(fileLeft));
-//             BufferedReader right = new BufferedReader(new FileReader(fileRight))) {
+    void mergeAllInOne(File fileLeft, File fileRight, SortDataType sortDateType, Comparator comparator)  {
+        File twoInOne = new File("tmp/" + fileLeft.getName() + ".m");
         BufferedReader left = null, right = null;
         BufferedWriter bw = null;
         try {
-            left = new BufferedReader(new InputStreamReader(Files.newInputStream(fileLeft.toPath()), FileRead.ENCODING));
-            right = new BufferedReader(new InputStreamReader(Files.newInputStream(fileRight.toPath()), FileRead.ENCODING));
-//            try (FileWriter fw = new FileWriter(twoInOne)) {
+            left = new BufferedReader(new InputStreamReader(Files.newInputStream(fileLeft.toPath()), FileSort.ENCODING));
+            right = new BufferedReader(new InputStreamReader(Files.newInputStream(fileRight.toPath()), FileSort.ENCODING));
             try {
-                bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(twoInOne.toPath()), FileRead.ENCODING));
+                bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(twoInOne.toPath()), FileSort.ENCODING));
 
                 Comparable x = sortDateType == SortDataType.INTEGER
                         ? Integer.parseInt(left.readLine()) : left.readLine();
@@ -274,7 +181,6 @@ public class FileSortImpl implements FileSort {
                             } while (x != null);
                         }
                     }
-//                    fw.flush();
                     bw.flush();
                 }
             } finally {
@@ -303,14 +209,11 @@ public class FileSortImpl implements FileSort {
         if (!fileRight.delete()) {
             System.out.printf("Не удалось удалить файл %s\n", fileRight.getName());
         }
-        return twoInOne;
     }
 
     Comparable readXY(BufferedWriter bw, Comparable value, BufferedReader br, SortDataType sortDateType) throws IOException {
-//        bw.append(value.toString()).append("\n");
         bw.write(value.toString());
         bw.newLine();
-
         String tmp = br.readLine();
         return tmp != null ? (sortDateType == SortDataType.INTEGER ? Integer.parseInt(tmp) : tmp) : null;
     }

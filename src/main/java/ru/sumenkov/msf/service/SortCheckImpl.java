@@ -1,7 +1,7 @@
 package ru.sumenkov.msf.service;
 
 import ru.sumenkov.msf.SortDataType;
-import ru.sumenkov.msf.repository.FileRead;
+import ru.sumenkov.msf.repository.FileSort;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -13,7 +13,7 @@ public class SortCheckImpl implements SortCheck {
     public boolean isSorted(File file, SortDataType sortDateType, Comparator comparator) {
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), FileRead.ENCODING));
+            br = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), FileSort.ENCODING));
             Comparable x = sortDateType == SortDataType.INTEGER ? Integer.parseInt(br.readLine()) : br.readLine();
             Comparable y = sortDateType == SortDataType.INTEGER ? Integer.parseInt(br.readLine()) : br.readLine();
 

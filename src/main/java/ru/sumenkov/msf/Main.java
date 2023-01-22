@@ -27,7 +27,7 @@ public class Main {
             if (fileCheck.outputFile(outputFileName)) {
                 List<File> listFile = fileCheck.listFile(args, indexInputFile);
                 if (listFile.size() != 0) {
-                    FileSort fileSort = new NewFileSort();
+                    FileSort fileSort = new FileSortImpl();
                     try {
                         fileSort.runSort(listFile, sortDataType, comparator, outputFileName);
                     } catch (IOException e) {

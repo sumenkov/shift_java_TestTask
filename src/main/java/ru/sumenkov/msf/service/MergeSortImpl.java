@@ -1,6 +1,6 @@
 package ru.sumenkov.msf.service;
 
-import ru.sumenkov.msf.repository.FileRead;
+import ru.sumenkov.msf.repository.FileSort;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -34,7 +34,7 @@ public class MergeSortImpl implements MergeSort {
                 new InputStreamReader(
                         Files.newInputStream(
                                 Paths.get(file.getPath())),
-                        FileRead.ENCODING));
+                        FileSort.ENCODING));
         List<T> array = new ArrayList<>();
         while (true) {
             String line = lines.readLine();
@@ -62,7 +62,7 @@ public class MergeSortImpl implements MergeSort {
                 new OutputStreamWriter(
                         Files.newOutputStream(
                                 Paths.get(file.getPath().split("\\.")[0] + ".s")),
-                        FileRead.ENCODING));
+                        FileSort.ENCODING));
         for (Comparable<T> value: array) {
             writer.write(value.toString());
             writer.newLine();
