@@ -21,19 +21,43 @@ public class FileSortImpl implements FileSort{
                 try {
                     Files.copy(Paths.get(file.getPath()), Paths.get("tmp/" + file.getName().split("\\.")[0] + ".s"));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    System.out.println(e.getMessage());
                 }
             } else if (numberOfLines(file) > Runtime.getRuntime().freeMemory() / 100) {
                 splitFile(file, sortDateType);
-
-                MergeSort mergeSort = new MergeSortImpl();
-                for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
-                    if (tmpFile.getName().contains(".ns")) {
-                        try {
-                            mergeSort.mergeSort(tmpFile, comparator);
-                        } catch (IOException e) {
-                            System.out.println(e.getMessage());
+            } else {
+                try {
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(
+                                    Files.newInputStream(
+                                            Paths.get(file.getName())),
+                                    FileSort.ENCODING));
+                    String newFileName = "tmp/" + file.getName().split("\\.")[0] + ".ns";
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(
+                                    Files.newOutputStream(
+                                            Paths.get(newFileName)),
+                                    FileSort.ENCODING));
+                    for (String line; (line = reader.readLine()) != null; ) {
+                        if (checkLine(line, sortDateType)) {
+                            writer.write(line);
+                            writer.newLine();
                         }
+                    }
+                    writer.close();
+                    reader.close();
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            MergeSort mergeSort = new MergeSortImpl();
+            for (File tmpFile : Objects.requireNonNull(TMP.listFiles())) {
+                if (tmpFile.getName().contains(".ns")) {
+                    try {
+                        mergeSort.mergeSort(tmpFile, comparator);
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
             }
